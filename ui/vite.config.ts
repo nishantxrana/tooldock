@@ -26,6 +26,15 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
         rewrite: (p) => p.replace(/^\/ado/, ''),
+        // Strip browser cookies before forwarding. The browser shares cookies
+        // across all of localhost (any port), so unrelated dev-app cookies would
+        // otherwise be sent to Azure DevOps and cause 400 Bad Request. ADO only
+        // needs the Authorization (Basic PAT) header.
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.removeHeader('cookie');
+          });
+        },
       },
     },
   },

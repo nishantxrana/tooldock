@@ -14,8 +14,12 @@ export const GITHUB_URL = 'https://github.com/your-org/tooldock';
  */
 export const ADO_BASE_PATH = '/ado';
 
-/** API versions verified against Microsoft Learn (July 2026). */
-export const API_VERSION = '7.2';
+/**
+ * API versions. Verified live against dev.azure.com: the projects resource
+ * rejects a plain "7.2" (it is preview-only at 7.2 and demands the -preview
+ * flag), so we use the released "7.1". Variable groups are preview-only.
+ */
+export const API_VERSION = '7.1';
 export const API_VERSION_VARIABLE_GROUPS = '7.2-preview.2';
 
 /** Minimum PAT scopes shown to the user before connecting. */

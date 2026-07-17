@@ -15,6 +15,9 @@ server {
     proxy_pass https://dev.azure.com;
     proxy_set_header Host dev.azure.com;
     proxy_ssl_server_name on;
+    # Strip browser cookies — Azure DevOps only needs the Authorization header,
+    # and forwarding unrelated cookies can cause 400 Bad Request.
+    proxy_set_header Cookie "";
     # The Authorization header (Basic base64(":PAT")) is forwarded verbatim.
     # Do NOT log it. Ensure access_log does not capture request headers.
   }
