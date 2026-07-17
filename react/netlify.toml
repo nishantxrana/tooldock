@@ -1,0 +1,20 @@
+# Netlify config for ToolDock.
+# The /ado/* proxy forwards Azure DevOps REST calls (Azure DevOps sends no CORS
+# headers, so a same-origin proxy is required). The SPA fallback serves index.html.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Proxy Azure DevOps API through same origin. Must come before the SPA fallback.
+[[redirects]]
+  from = "/ado/*"
+  to = "https://dev.azure.com/:splat"
+  status = 200
+  force = true
+
+# SPA fallback.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

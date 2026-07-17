@@ -1,0 +1,26 @@
+# Example nginx config for serving ToolDock and proxying Azure DevOps.
+# Azure DevOps sends no CORS headers, so the browser must talk to a same-origin
+# proxy. Requests to /ado/* are forwarded to https://dev.azure.com/*.
+
+server {
+  listen 80;
+  server_name tooldock.example.com;
+
+  root /var/www/tooldock/dist;
+  index index.html;
+
+  # Same-origin proxy to Azure DevOps REST API.
+  location /ado/ {
+    rewrite ^/ado/(.*)$ /$1 break;
+    proxy_pass https://dev.azure.com;
+    proxy_set_header Host dev.azure.com;
+    proxy_ssl_server_name on;
+    # The Authorization header (Basic base64(":PAT")) is forwarded verbatim.
+    # Do NOT log it. Ensure access_log does not capture request headers.
+  }
+
+  # SPA fallback.
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+}
