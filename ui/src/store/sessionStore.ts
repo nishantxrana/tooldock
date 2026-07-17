@@ -14,9 +14,17 @@ interface SessionState {
   organization: string | null;
   selectedProject: Project | null;
   isConnected: boolean;
+  /**
+   * Whether the PAT can write variable groups. `null` = unknown (not attempted
+   * yet). Set to `false` when a write is rejected with 403, so we can disable
+   * write actions and explain why. A PAT's scopes can't be read up-front from
+   * the browser, so this is learned reactively.
+   */
+  variableGroupsWritable: boolean | null;
 
   connect: (pat: string, organization: string) => void;
   selectProject: (project: Project | null) => void;
+  setVariableGroupsWritable: (writable: boolean) => void;
   disconnect: () => void;
 }
 
@@ -25,14 +33,23 @@ export const useSessionStore = create<SessionState>((set) => ({
   organization: null,
   selectedProject: null,
   isConnected: false,
+  variableGroupsWritable: null,
 
   connect: (pat, organization) =>
     set({ pat, organization: organization.trim(), isConnected: true }),
 
   selectProject: (project) => set({ selectedProject: project }),
 
+  setVariableGroupsWritable: (writable) => set({ variableGroupsWritable: writable }),
+
   disconnect: () =>
-    set({ pat: null, organization: null, selectedProject: null, isConnected: false }),
+    set({
+      pat: null,
+      organization: null,
+      selectedProject: null,
+      isConnected: false,
+      variableGroupsWritable: null,
+    }),
 }));
 
 /**

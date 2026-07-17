@@ -11,12 +11,14 @@ import { VariableGroupPicker } from '@/components/common/VariableGroupPicker';
 import { RequireProject } from '@/components/common/RequireProject';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { CsvDropzone } from './CsvDropzone';
 import { ImportPreviewTable } from './ImportPreviewTable';
 import { buildImportPlan } from './importDiff';
 import { parseKeyValueCsv } from '@/lib/utils/csv';
 import { useUpdateVariableGroup } from '@/lib/hooks/useUpdateVariableGroup';
 import { errorMessage, errorTitle } from '@/lib/api/errors';
+import { useSessionStore } from '@/store/sessionStore';
 import type { VariableGroup } from '@/types/ado';
 
 /**
@@ -31,6 +33,8 @@ export function CsvImport() {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const mutation = useUpdateVariableGroup();
+  const writable = useSessionStore((s) => s.variableGroupsWritable);
+  const writeDenied = writable === false;
 
   const parsed = useMemo(() => (csvText ? parseKeyValueCsv(csvText) : null), [csvText]);
   const plan = useMemo(
@@ -127,13 +131,37 @@ export function CsvImport() {
                   <Badge variant="warning">{plan.counts.overwrite} overwrite</Badge>
                   <Badge variant="success">{plan.counts.new} new</Badge>
                   <Badge variant="secondary">{plan.counts.same} same</Badge>
-                  <Button size="sm" onClick={() => setConfirmOpen(true)}>
-                    <Upload />
-                    Import…
-                  </Button>
+                  {writeDenied ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        {/* span wrapper so the tooltip works on a disabled button */}
+                        <span tabIndex={0}>
+                          <Button size="sm" disabled>
+                            <Upload />
+                            Import…
+                          </Button>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        Your PAT can read but not write variable groups. Reconnect with a PAT that
+                        has the “Variable Groups (Read, create, &amp; manage)” scope to import.
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <Button size="sm" onClick={() => setConfirmOpen(true)}>
+                      <Upload />
+                      Import…
+                    </Button>
+                  )}
                 </div>
               }
             >
+              {writeDenied && (
+                <div className="mb-3 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning">
+                  Import is disabled — your PAT lacks the Variable Groups <strong>manage</strong>{' '}
+                  scope. You can still preview changes below.
+                </div>
+              )}
               <ImportPreviewTable rows={plan.rows} />
             </SectionCard>
           )
