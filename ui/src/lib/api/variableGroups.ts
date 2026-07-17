@@ -42,26 +42,34 @@ export async function getVariableGroup(
 /**
  * Update a variable group's variables. The update endpoint is org-scoped and
  * REQUIRES the full body — name, type, description, the complete variables map,
- * and variableGroupProjectReferences (omitting the references would un-share the
- * group). We derive the body from the existing group to preserve everything.
+ * and variableGroupProjectReferences (omitting the references fails with
+ * "Project information name is not valid for variable group", and would
+ * otherwise un-share the group).
+ *
+ * IMPORTANT: the LIST endpoint does not populate variableGroupProjectReferences,
+ * so we always GET the authoritative group by id first to obtain them, then
+ * apply the new variables on top.
  *
  * PUT /{org}/_apis/distributedtask/variablegroups/{groupId}?api-version=7.2-preview.2
  */
 export async function updateVariableGroupVariables(
   organization: string,
-  existing: VariableGroup,
+  project: string,
+  groupId: number,
   nextVariables: VariableMap,
 ): Promise<VariableGroup> {
+  const authoritative = await getVariableGroup(organization, project, groupId);
+
   const body: VariableGroupUpdateBody = {
-    name: existing.name,
-    description: existing.description ?? '',
-    type: existing.type,
+    name: authoritative.name,
+    description: authoritative.description ?? '',
+    type: authoritative.type,
     variables: nextVariables,
-    variableGroupProjectReferences: existing.variableGroupProjectReferences ?? [],
+    variableGroupProjectReferences: authoritative.variableGroupProjectReferences ?? [],
   };
 
   return adoRequest<VariableGroup>(
-    [organization, '_apis', 'distributedtask', 'variablegroups', String(existing.id)],
+    [organization, '_apis', 'distributedtask', 'variablegroups', String(groupId)],
     { method: 'PUT', query: { 'api-version': API_VERSION_VARIABLE_GROUPS }, body },
   );
 }

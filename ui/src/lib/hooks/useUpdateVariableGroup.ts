@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateVariableGroupVariables } from '@/lib/api/variableGroups';
-import type { VariableGroup, VariableMap } from '@/types/ado';
+import type { VariableMap } from '@/types/ado';
 import { useSessionStore } from '@/store/sessionStore';
 
 interface UpdateArgs {
-  existing: VariableGroup;
+  groupId: number;
   nextVariables: VariableMap;
 }
 
@@ -15,8 +15,8 @@ export function useUpdateVariableGroup() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ existing, nextVariables }: UpdateArgs) =>
-      updateVariableGroupVariables(organization!, existing, nextVariables),
+    mutationFn: ({ groupId, nextVariables }: UpdateArgs) =>
+      updateVariableGroupVariables(organization!, project!.name, groupId, nextVariables),
     onSuccess: (updated) => {
       queryClient.invalidateQueries({
         queryKey: ['variableGroups', organization, project?.id],
