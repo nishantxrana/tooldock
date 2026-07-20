@@ -70,6 +70,11 @@ export async function updateVariableGroupVariables(
 
   return adoRequest<VariableGroup>(
     [organization, '_apis', 'distributedtask', 'variablegroups', String(groupId)],
-    { method: 'PUT', query: { 'api-version': API_VERSION_VARIABLE_GROUPS }, body },
+    {
+      method: 'PUT',
+      query: { 'api-version': API_VERSION_VARIABLE_GROUPS },
+      body,
+      errorContext: 'write',
+    },
   );
 }

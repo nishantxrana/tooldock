@@ -22,19 +22,38 @@ export class AdoError extends Error {
   }
 }
 
+/**
+ * Whether the failing call was a read or a write. Azure DevOps returns 401 (not
+ * always 403) when a valid PAT lacks the scope for a write, so the messaging for
+ * a write differs from a read/connect.
+ */
+export type AdoErrorContext = 'read' | 'write';
+
+const WRITE_SCOPE_MESSAGE =
+  'Your PAT is valid but lacks the "Variable Groups (Read, create, & manage)" scope needed to write. Reconnect with a manage-scoped PAT.';
+
 /** Map an HTTP response status to a typed, user-actionable AdoError. */
-export function errorFromStatus(status: number, retryAfter?: number): AdoError {
+export function errorFromStatus(
+  status: number,
+  retryAfter?: number,
+  context: AdoErrorContext = 'read',
+): AdoError {
+  const isWrite = context === 'write';
   switch (status) {
     case 401:
       return new AdoError(
         'unauthorized',
-        'Your PAT is invalid or expired. Reconnect with a valid token.',
+        isWrite
+          ? WRITE_SCOPE_MESSAGE
+          : 'Your PAT is invalid or expired. Reconnect with a valid token.',
         status,
       );
     case 403:
       return new AdoError(
         'forbidden',
-        'Permission denied. Ensure your PAT has the required Variable Groups and Project (Read) scopes.',
+        isWrite
+          ? WRITE_SCOPE_MESSAGE
+          : 'Permission denied. Ensure your PAT has the required Variable Groups and Project (Read) scopes.',
         status,
       );
     case 404:

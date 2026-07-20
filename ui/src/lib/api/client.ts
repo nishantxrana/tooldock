@@ -1,7 +1,7 @@
 import { ADO_BASE_PATH } from '@/lib/constants';
 import { getSessionSnapshot } from '@/store/sessionStore';
 import { buildAuthHeader } from './auth';
-import { AdoError, errorFromStatus } from './errors';
+import { AdoError, errorFromStatus, type AdoErrorContext } from './errors';
 
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -12,6 +12,12 @@ interface RequestOptions {
   patOverride?: string;
   /** Signal for cancellation. */
   signal?: AbortSignal;
+  /**
+   * Labels the call as a read or write so auth errors get accurate messaging.
+   * Defaults to 'read'. Writes should pass 'write' (a 401/403 then means the
+   * PAT lacks the manage scope rather than being invalid).
+   */
+  errorContext?: AdoErrorContext;
 }
 
 function buildUrl(pathSegments: string[], query?: Record<string, string | undefined>): string {
@@ -39,7 +45,7 @@ export async function adoRequest<T>(
   pathSegments: string[],
   options: RequestOptions = {},
 ): Promise<T> {
-  const { method = 'GET', query, body, patOverride, signal } = options;
+  const { method = 'GET', query, body, patOverride, signal, errorContext = 'read' } = options;
   const pat = patOverride ?? getSessionSnapshot().pat;
 
   if (!pat) {
@@ -73,7 +79,11 @@ export async function adoRequest<T>(
   if (!res.ok) {
     const retryAfterHeader = res.headers.get('Retry-After');
     const retryAfter = retryAfterHeader ? Number(retryAfterHeader) : undefined;
-    throw errorFromStatus(res.status, Number.isNaN(retryAfter) ? undefined : retryAfter);
+    throw errorFromStatus(
+      res.status,
+      Number.isNaN(retryAfter) ? undefined : retryAfter,
+      errorContext,
+    );
   }
 
   if (res.status === 204) {

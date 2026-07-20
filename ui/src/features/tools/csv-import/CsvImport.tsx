@@ -17,7 +17,7 @@ import { ImportPreviewTable } from './ImportPreviewTable';
 import { buildImportPlan } from './importDiff';
 import { parseKeyValueCsv } from '@/lib/utils/csv';
 import { useUpdateVariableGroup } from '@/lib/hooks/useUpdateVariableGroup';
-import { errorMessage, errorTitle } from '@/lib/api/errors';
+import { AdoError, errorMessage, errorTitle } from '@/lib/api/errors';
 import { useSessionStore } from '@/store/sessionStore';
 import type { VariableGroup } from '@/types/ado';
 
@@ -61,7 +61,12 @@ export function CsvImport() {
         },
         onError: (err) => {
           setConfirmOpen(false);
-          toast.error(errorTitle(err), { description: errorMessage(err) });
+          // A denied write is a scope problem, not a bad token — title it clearly.
+          const scopeDenied =
+            err instanceof AdoError && (err.kind === 'unauthorized' || err.kind === 'forbidden');
+          toast.error(scopeDenied ? 'Insufficient PAT scope' : errorTitle(err), {
+            description: errorMessage(err),
+          });
         },
       },
     );
