@@ -28,7 +28,9 @@ const SECRET_PLACEHOLDER = '';
 function buildOutput(group: VariableGroup, format: Format): string {
   const entries = variableEntries(group);
   if (format === 'csv') {
-    return toKeyValueCsv(entries.map((e) => ({ key: e.key, value: e.value ?? SECRET_PLACEHOLDER })));
+    return toKeyValueCsv(
+      entries.map((e) => ({ key: e.key, value: e.value ?? SECRET_PLACEHOLDER })),
+    );
   }
   if (format === 'txt') {
     return entries.map((e) => `${e.key}=${e.value ?? SECRET_PLACEHOLDER}`).join('\n');

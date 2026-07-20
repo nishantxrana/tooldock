@@ -13,10 +13,7 @@ export function SortAppSettings() {
 
   const output = useMemo(() => sortLines(input), [input]);
   const lineCount = useMemo(() => countLines(output), [output]);
-  const varCount = useMemo(
-    () => distinctKeys(parseAppSettingsKeys(input)).length,
-    [input],
-  );
+  const varCount = useMemo(() => distinctKeys(parseAppSettingsKeys(input)).length, [input]);
 
   return (
     <PageLayout

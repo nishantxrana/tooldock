@@ -25,10 +25,7 @@ export function useUpdateVariableGroup() {
       queryClient.invalidateQueries({
         queryKey: ['variableGroups', organization, project?.id],
       });
-      queryClient.setQueryData(
-        ['variableGroup', organization, project?.id, updated.id],
-        updated,
-      );
+      queryClient.setQueryData(['variableGroup', organization, project?.id, updated.id], updated);
     },
     onError: (err) => {
       // A write that fails with 403 OR 401 means the PAT lacks the Variable

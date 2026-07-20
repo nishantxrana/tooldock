@@ -30,14 +30,13 @@ export function GenerateAppSettings() {
     <RequireProject>
       <PageLayout
         title="Generate App Service Settings"
-        description={'Turn a variable group into the -KEY "$(KEY)" string for the App Service Deploy task.'}
+        description={
+          'Turn a variable group into the -KEY "$(KEY)" string for the App Service Deploy task.'
+        }
         icon={Terminal}
       >
         <SectionCard title="Source">
-          <VariableGroupPicker
-            value={group?.id ?? null}
-            onChange={(_, g) => setGroup(g)}
-          />
+          <VariableGroupPicker value={group?.id ?? null} onChange={(_, g) => setGroup(g)} />
         </SectionCard>
 
         {group ? (

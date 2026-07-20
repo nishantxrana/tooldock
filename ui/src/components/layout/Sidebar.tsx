@@ -21,8 +21,7 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
         group,
         tools: q
           ? tools.filter(
-              (t) =>
-                t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q),
+              (t) => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q),
             )
           : tools,
       }))

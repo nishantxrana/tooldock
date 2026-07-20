@@ -50,8 +50,7 @@ export function compareKeys(groupKeys: string[], appSettingsKeys: string[]): Key
     if (c > 1) duplicatesInAppSettings.push(k);
   }
 
-  const sort = (a: string, b: string) =>
-    a.localeCompare(b, undefined, { sensitivity: 'base' });
+  const sort = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base' });
   matched.sort(sort);
   missingFromAppSettings.sort(sort);
   extraInAppSettings.sort(sort);

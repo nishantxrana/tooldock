@@ -14,10 +14,7 @@ export function DuplicateFinder() {
 
   const parsed = useMemo(() => parseAppSettingsKeys(input), [input]);
   const duplicates = useMemo(() => findDuplicateKeys(parsed), [parsed]);
-  const duplicateLineSet = useMemo(
-    () => new Set(duplicates.flatMap((d) => d.lines)),
-    [duplicates],
-  );
+  const duplicateLineSet = useMemo(() => new Set(duplicates.flatMap((d) => d.lines)), [duplicates]);
 
   const lines = useMemo(() => input.split(/\r?\n/), [input]);
 
@@ -32,7 +29,9 @@ export function DuplicateFinder() {
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={'-JWT_SECRET "$(JWT_SECRET)"\n-NODE_ENV "$(NODE_ENV)"\n-JWT_SECRET "$(JWT_SECRET)"'}
+            placeholder={
+              '-JWT_SECRET "$(JWT_SECRET)"\n-NODE_ENV "$(NODE_ENV)"\n-JWT_SECRET "$(JWT_SECRET)"'
+            }
             className="min-h-[360px]"
             autoFocus
           />
@@ -85,15 +84,14 @@ export function DuplicateFinder() {
               return (
                 <div
                   key={lineNo}
-                  className={cn(
-                    'flex gap-3 px-4 py-0.5',
-                    isDup && 'bg-destructive/10',
-                  )}
+                  className={cn('flex gap-3 px-4 py-0.5', isDup && 'bg-destructive/10')}
                 >
                   <span className="w-10 flex-shrink-0 select-none text-right text-muted-foreground">
                     {lineNo}
                   </span>
-                  <span className={cn('whitespace-pre-wrap break-all', isDup && 'text-destructive')}>
+                  <span
+                    className={cn('whitespace-pre-wrap break-all', isDup && 'text-destructive')}
+                  >
                     {line || ' '}
                   </span>
                 </div>
