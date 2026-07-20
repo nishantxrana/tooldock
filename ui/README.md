@@ -1,92 +1,63 @@
-# ToolDock
+# ToolDock (UI)
 
-**Productivity tools for Azure DevOps engineers.**
+Contributor guide for the React SPA. For the product overview, security model, deploy configs, and FAQ, see the [root README](../README.md).
 
-A polished, **frontend-only** toolkit that eliminates repetitive Variable Group /
-App Service deployment chores in Azure DevOps. No backend, no database — you paste
-a Personal Access Token (PAT) once per session and everything runs in your browser.
+**Package root:** run all npm commands from this directory (`ui/`).
 
-## Tools
-
-| Tool | What it does |
-| --- | --- |
-| **Generate App Service Settings** | Turn a variable group into the `-KEY "$(KEY)"` string for the App Service Deploy task. |
-| **Compare vs App Settings** | Diff a variable group against pasted App Settings (matched / missing / extra / duplicates). |
-| **CSV Import** | Import `Key,Value` CSV into a variable group, with a full preview and explicit confirmation before writing. |
-| **Export Variable Group** | Export a variable group as CSV, JSON, or TXT. |
-| **Duplicate Finder** | Find duplicate keys in pasted App Settings, with line numbers. |
-| **Sort App Settings** | Sort pasted App Settings alphabetically. |
-
-## Tech stack
-
-React + TypeScript (strict) · Vite · React Router · Tailwind CSS · shadcn/ui ·
-Lucide · TanStack Query · Zustand.
-
-## Security model
-
-- The PAT lives **only in runtime memory** (a Zustand store). No `localStorage`,
-  `sessionStorage`, cookies, or IndexedDB. **Refreshing the page clears it** and
-  forces reconnection.
-- The PAT is used solely to build the `Authorization: Basic base64(":" + PAT)`
-  header for Azure DevOps requests. It is never logged.
-
-## The CORS proxy (important)
-
-The Azure DevOps REST API does **not** send CORS headers, so browser JavaScript
-cannot call `https://dev.azure.com` directly. ToolDock therefore calls a relative
-path `/ado/*` that a **same-origin proxy** forwards to Azure DevOps:
-
-- **Development:** the Vite dev server proxies `/ado` → `https://dev.azure.com`
-  (see `vite.config.ts`).
-- **Production:** deploy behind a reverse proxy that rewrites `/ado/*` the same way.
-  Ready-made configs are included:
-  - `vercel.json` (Vercel rewrites)
-  - `netlify.toml` (Netlify redirects)
-  - `nginx.conf.example` (nginx `proxy_pass`)
-
-The PAT only ever travels from the browser toward Azure DevOps through this proxy.
-
-## Required PAT scopes
-
-Create a PAT (Azure DevOps → User settings → Personal access tokens) with the
-**minimum** scopes:
-
-- **Variable Groups** → *Read, create, & manage* (needed for CSV Import writes)
-- **Project and Team** → *Read* (to list projects)
-
-Do not grant Full access.
-
-## API versions
-
-- Projects: `7.2`
-- Variable Groups: `7.2-preview.2`
-
-## Getting started
+## Quick start
 
 ```bash
+cd ui
 npm install
 npm run dev        # http://localhost:5173
 ```
 
-Then enter your **organization** and **PAT** on the connection screen, pick a
-project, and use the tools.
+Enter organization + PAT on the connection screen, pick a project, then use the tools.
 
 ## Scripts
 
-```bash
-npm run dev         # start dev server (with the /ado proxy)
-npm run build       # typecheck + production build
-npm run typecheck   # strict TypeScript, no emit
-npm run lint        # eslint
-npm run preview     # preview the production build
-```
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Vite dev server (proxies `/ado` → `https://dev.azure.com`) |
+| `npm run build` | `tsc -b` + production build → `dist/` |
+| `npm run preview` | Preview the production build |
+| `npm run typecheck` | Strict TypeScript, no emit |
+| `npm run lint` | ESLint with `--max-warnings 0` |
+| `npm run format` | Prettier on `src/**/*.{ts,tsx,css}` |
+
+## CORS proxy
+
+Azure DevOps sends no CORS headers. App code calls `/ado/*`; the proxy forwards to `https://dev.azure.com`:
+
+- **Dev:** [vite.config.ts](vite.config.ts)
+- **Prod:** [vercel.json](vercel.json), [netlify.toml](netlify.toml), [nginx.conf.example](nginx.conf.example)
+
+## Security (summary)
+
+PAT lives only in the in-memory Zustand store (`src/store/sessionStore.ts`). Refresh clears it. Header: `Basic base64(":" + PAT)`. Full write-up: [root README — Security](../README.md#security-model).
+
+Required PAT scopes are listed in `src/lib/constants.ts` (`REQUIRED_PAT_SCOPES`).
+
+## API versions
+
+From `src/lib/constants.ts` (verified against Azure DevOps):
+
+| Resource | Version |
+| --- | --- |
+| Projects | `7.1` |
+| Variable Groups | `7.2-preview.2` |
+
+Plain `7.2` for projects is rejected without a preview flag, so the released `7.1` is used.
 
 ## Adding a new tool
 
-The sidebar and routes are generated from `src/features/tools/registry.ts`.
-To add a tool:
+Sidebar and routes are generated from `src/features/tools/registry.ts`.
 
 1. Create `src/features/tools/<your-tool>/YourTool.tsx`.
 2. Add one `ToolDefinition` entry to `TOOLS` in `registry.ts`.
 
-That's it — no router or sidebar edits needed.
+No router or sidebar edits needed. Set `requiresConnection: false` for paste-only tools.
+
+## Deploy
+
+See [root README — Deploy](../README.md#deploy). Build with `npm run build`, serve `dist/`, and keep `/ado/*` rewrites ahead of the SPA fallback.

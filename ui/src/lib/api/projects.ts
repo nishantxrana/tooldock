@@ -4,7 +4,7 @@ import { adoRequest } from './client';
 
 /**
  * List projects in the organization.
- * GET /{org}/_apis/projects?api-version=7.2
+ * GET /{org}/_apis/projects?api-version=7.1
  *
  * Also used to validate the PAT + organization during connect.
  */
