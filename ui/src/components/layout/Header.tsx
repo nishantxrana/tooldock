@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { LogOut, PanelLeft, Plug, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Logo } from './Logo';
 import { ProjectSelector } from './ProjectSelector';
 import { ThemeToggle } from './ThemeToggle';
@@ -14,6 +15,7 @@ interface HeaderProps {
 }
 
 export function Header({ onToggleSidebar }: HeaderProps) {
+  const navigate = useNavigate();
   const isConnected = useSessionStore((s) => s.isConnected);
   const organization = useSessionStore((s) => s.organization);
   const disconnect = useSessionStore((s) => s.disconnect);
@@ -54,18 +56,21 @@ export function Header({ onToggleSidebar }: HeaderProps) {
             <ProjectSelector />
             <ThemeToggle />
             <PersistButton />
-            <Button variant="ghost" size="icon" onClick={handleDisconnect} aria-label="Disconnect" title="Disconnect (clears PAT from memory)">
-              <LogOut />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={handleDisconnect} aria-label="Disconnect">
+                  <LogOut />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Disconnect (clears PAT from memory)</TooltipContent>
+            </Tooltip>
           </>
         ) : (
           <>
             <ThemeToggle />
-            <Button variant="outline" size="sm" className="gap-1.5" asChild>
-              <Link to="/connect">
-                <Plug className="h-4 w-4" />
-                Connect
-              </Link>
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate('/')}>
+              <Plug className="h-4 w-4" />
+              Connect
             </Button>
           </>
         )}

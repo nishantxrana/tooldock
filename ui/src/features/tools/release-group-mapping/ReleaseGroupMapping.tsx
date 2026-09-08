@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Download, GitBranch, Loader2, RefreshCw } from 'lucide-react';
 import { Callout } from '@/components/common/Callout';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageLayout } from '@/components/common/PageLayout';
 import { SectionCard } from '@/components/common/SectionCard';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -199,16 +200,20 @@ export function ReleaseGroupMapping() {
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => refetch()}
-                        disabled={isFetching}
-                        title="Re-fetch pipeline data"
-                      >
-                        <RefreshCw className={isFetching ? 'animate-spin' : ''} />
-                        Refresh
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => refetch()}
+                            disabled={isFetching}
+                          >
+                            <RefreshCw className={isFetching ? 'animate-spin' : ''} />
+                            Refresh
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Re-fetch pipeline data</TooltipContent>
+                      </Tooltip>
                       <Button size="sm" onClick={handleExport} disabled={exporting || isFetching}>
                         {exporting ? <Loader2 className="animate-spin" /> : <Download />}
                         {exporting ? 'Preparing…' : 'Export .xlsx'}
