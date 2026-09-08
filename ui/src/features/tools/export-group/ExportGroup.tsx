@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Download } from 'lucide-react';
+import { Download, FileSpreadsheet, Loader2 } from 'lucide-react';
 import { PageLayout } from '@/components/common/PageLayout';
 import { SectionCard } from '@/components/common/SectionCard';
 import { OutputBlock } from '@/components/common/OutputBlock';
@@ -10,22 +10,31 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toKeyValueCsv } from '@/lib/utils/csv';
 import { safeFilename } from '@/lib/utils/download';
+import { exportKeyValueXlsx } from '@/lib/utils/xlsx';
 import { variableCount, variableEntries } from '@/lib/utils/variables';
 import { cn } from '@/lib/utils/cn';
+import { useSessionStore } from '@/store/sessionStore';
 import type { VariableGroup } from '@/types/ado';
 
-type Format = 'csv' | 'json' | 'txt';
+type Format = 'csv' | 'json' | 'txt' | 'xlsx';
 
 const FORMATS: { id: Format; label: string; mime: string; ext: string }[] = [
   { id: 'csv', label: 'CSV', mime: 'text/csv', ext: 'csv' },
   { id: 'json', label: 'JSON', mime: 'application/json', ext: 'json' },
   { id: 'txt', label: 'TXT', mime: 'text/plain', ext: 'txt' },
+  {
+    id: 'xlsx',
+    label: 'XLSX',
+    mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ext: 'xlsx',
+  },
 ];
 
 /** Secret values cannot be read back from ADO; represented as a placeholder. */
 const SECRET_PLACEHOLDER = '';
 
-function buildOutput(group: VariableGroup, format: Format): string {
+/** Text formats only — xlsx is binary and built separately. */
+function buildOutput(group: VariableGroup, format: Exclude<Format, 'xlsx'>): string {
   const entries = variableEntries(group);
   if (format === 'csv') {
     return toKeyValueCsv(
@@ -45,23 +54,47 @@ function buildOutput(group: VariableGroup, format: Format): string {
   return JSON.stringify({ name: group.name, type: group.type, variables }, null, 2);
 }
 
-/** Tool 4 — export a variable group as CSV / JSON / TXT. */
+/** Tool 4 — export a variable group as CSV / JSON / TXT / XLSX. */
 export function ExportGroup() {
+  const organization = useSessionStore((s) => s.organization);
   const [group, setGroup] = useState<VariableGroup | null>(null);
   const [format, setFormat] = useState<Format>('csv');
+  const [xlsxExporting, setXlsxExporting] = useState(false);
 
-  const output = useMemo(() => (group ? buildOutput(group, format) : ''), [group, format]);
+  const output = useMemo(
+    () => (group && format !== 'xlsx' ? buildOutput(group, format) : ''),
+    [group, format],
+  );
   const active = FORMATS.find((f) => f.id === format)!;
   const hasSecrets = useMemo(
     () => (group ? variableEntries(group).some((e) => e.isSecret) : false),
     [group],
   );
 
+  const exportFilename = group
+    ? safeFilename(organization ? `${organization}-${group.name}` : group.name)
+    : '';
+
+  const handleXlsxDownload = async () => {
+    if (!group) return;
+    setXlsxExporting(true);
+    try {
+      const entries = variableEntries(group);
+      await exportKeyValueXlsx(
+        `${exportFilename}.xlsx`,
+        group.name,
+        entries.map((e) => ({ key: e.key, value: e.value ?? SECRET_PLACEHOLDER })),
+      );
+    } finally {
+      setXlsxExporting(false);
+    }
+  };
+
   return (
     <RequireProject>
       <PageLayout
         title="Export Variable Group"
-        description="Export a variable group as CSV, JSON, or TXT."
+        description="Export a variable group as CSV, JSON, TXT, or XLSX."
         icon={Download}
       >
         <SectionCard
@@ -92,13 +125,34 @@ export function ExportGroup() {
                 Secret variables cannot be read from Azure DevOps; their values are exported empty.
               </div>
             )}
-            <OutputBlock
-              title={`${active.label} export`}
-              value={output}
-              downloadName={`${safeFilename(group.name)}.${active.ext}`}
-              downloadMime={active.mime}
-              actions={<Badge variant="secondary">{variableCount(group)} vars</Badge>}
-            />
+            {format === 'xlsx' ? (
+              <SectionCard
+                title="XLSX export"
+                actions={<Badge variant="secondary">{variableCount(group)} vars</Badge>}
+              >
+                <div className="flex items-center justify-between gap-4 p-4">
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <FileSpreadsheet className="h-5 w-5" />
+                    <span>
+                      <span className="font-medium text-foreground">{exportFilename}.xlsx</span>{' '}
+                      — sheet "{group.name}", {variableCount(group)} variables.
+                    </span>
+                  </div>
+                  <Button size="sm" onClick={handleXlsxDownload} disabled={xlsxExporting}>
+                    {xlsxExporting ? <Loader2 className="animate-spin" /> : <Download />}
+                    {xlsxExporting ? 'Preparing…' : 'Download'}
+                  </Button>
+                </div>
+              </SectionCard>
+            ) : (
+              <OutputBlock
+                title={`${active.label} export`}
+                value={output}
+                downloadName={`${exportFilename}.${active.ext}`}
+                downloadMime={active.mime}
+                actions={<Badge variant="secondary">{variableCount(group)} vars</Badge>}
+              />
+            )}
           </>
         ) : (
           <EmptyState
