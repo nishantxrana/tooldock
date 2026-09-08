@@ -1,5 +1,4 @@
-import { useNavigate } from 'react-router-dom';
-import { LogOut, PanelLeft, Plug, Wifi } from 'lucide-react';
+import { LogOut, PanelLeft, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -15,7 +14,6 @@ interface HeaderProps {
 }
 
 export function Header({ onToggleSidebar }: HeaderProps) {
-  const navigate = useNavigate();
   const isConnected = useSessionStore((s) => s.isConnected);
   const organization = useSessionStore((s) => s.organization);
   const disconnect = useSessionStore((s) => s.disconnect);
@@ -66,13 +64,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
             </Tooltip>
           </>
         ) : (
-          <>
-            <ThemeToggle />
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate('/')}>
-              <Plug className="h-4 w-4" />
-              Connect
-            </Button>
-          </>
+          <ThemeToggle />
         )}
       </div>
     </header>

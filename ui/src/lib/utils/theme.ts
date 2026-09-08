@@ -8,7 +8,7 @@ const THEME_STORAGE_KEY = 'tooldock-theme';
  */
 export function getStoredTheme(): Theme {
   const stored = localStorage.getItem(THEME_STORAGE_KEY);
-  return stored === 'dark' ? 'dark' : 'light';
+  return stored === 'light' ? 'light' : 'dark';
 }
 
 /** Apply the theme class to <html> and persist the choice. */
