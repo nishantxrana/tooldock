@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { AlertTriangle, FileSpreadsheet, RotateCcw, Upload } from 'lucide-react';
+import { FileSpreadsheet, RotateCcw, Upload } from 'lucide-react';
+import { Callout } from '@/components/common/Callout';
 import { toast } from 'sonner';
 import { PageLayout } from '@/components/common/PageLayout';
 import { SectionCard } from '@/components/common/SectionCard';
@@ -109,14 +110,16 @@ export function CsvImport() {
         </SectionCard>
 
         {parsed && parsed.warnings.length > 0 && (
-          <div className="rounded-md border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
-            <p className="mb-1 font-medium">CSV warnings</p>
-            <ul className="list-inside list-disc space-y-0.5">
-              {parsed.warnings.map((w, i) => (
-                <li key={i}>{w}</li>
-              ))}
-            </ul>
-          </div>
+          <Callout variant="warning">
+            <div>
+              <p className="mb-1 font-medium">CSV warnings</p>
+              <ul className="list-inside list-disc space-y-0.5">
+                {parsed.warnings.map((w, i) => (
+                  <li key={i}>{w}</li>
+                ))}
+              </ul>
+            </div>
+          </Callout>
         )}
 
         {mutation.isError && <ErrorBanner error={mutation.error} />}
@@ -162,10 +165,10 @@ export function CsvImport() {
               }
             >
               {writeDenied && (
-                <div className="mb-3 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning">
+                <Callout variant="warning" className="mb-3">
                   Import is disabled — your PAT lacks the Variable Groups <strong>manage</strong>{' '}
                   scope. You can still preview changes below.
-                </div>
+                </Callout>
               )}
               <ImportPreviewTable rows={plan.rows} />
             </SectionCard>
@@ -192,13 +195,10 @@ export function CsvImport() {
         {plan && (
           <div className="min-w-0 space-y-3">
             {plan.counts.overwrite > 0 && (
-              <div className="flex items-start gap-2 rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning">
-                <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                <span>
-                  <strong>{plan.counts.overwrite}</strong> existing variable
-                  {plan.counts.overwrite === 1 ? '' : 's'} will be overwritten.
-                </span>
-              </div>
+              <Callout variant="warning">
+                <strong>{plan.counts.overwrite}</strong> existing variable
+                {plan.counts.overwrite === 1 ? '' : 's'} will be overwritten.
+              </Callout>
             )}
             <div className="flex gap-2 text-sm">
               <Badge variant="warning">{plan.counts.overwrite} overwrite</Badge>

@@ -7,6 +7,8 @@ import { OutputBlock } from '@/components/common/OutputBlock';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorBanner } from '@/components/common/ErrorBanner';
 import { RequireProject } from '@/components/common/RequireProject';
+import { FormatToggle } from '@/components/common/FormatToggle';
+import { Callout } from '@/components/common/Callout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -165,21 +167,7 @@ export function ExportReleaseVars() {
         {/* Pipeline picker */}
         <SectionCard
           title="Source"
-          actions={
-            <div className="flex rounded-md border border-input p-0.5">
-              {FORMATS.map((f) => (
-                <Button
-                  key={f.id}
-                  variant={format === f.id ? 'secondary' : 'ghost'}
-                  size="sm"
-                  className={`h-7 px-3 ${format === f.id ? 'shadow-sm' : ''}`}
-                  onClick={() => setFormat(f.id)}
-                >
-                  {f.label}
-                </Button>
-              ))}
-            </div>
-          }
+          actions={<FormatToggle formats={FORMATS} value={format} onChange={setFormat} />}
         >
           <div className="space-y-3">
             {defsLoading && <Skeleton className="h-9 w-full max-w-sm" />}
@@ -240,9 +228,9 @@ export function ExportReleaseVars() {
         {def && (
           <>
             {hasSecrets && (
-              <div className="rounded-md border border-warning/30 bg-warning/10 px-4 py-2 text-sm text-warning">
+              <Callout variant="warning">
                 Secret variables cannot be read from Azure DevOps; their values are exported empty.
-              </div>
+              </Callout>
             )}
 
             {vars.length === 0 ? (

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Boxes, Download, Layers, Loader2 } from 'lucide-react';
+import { Callout } from '@/components/common/Callout';
 import { PageLayout } from '@/components/common/PageLayout';
 import { SectionCard } from '@/components/common/SectionCard';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -134,10 +135,9 @@ export function ExportAllGroups() {
             </SectionCard>
 
             {hasSecrets && (
-              <div className="rounded-md border border-warning/30 bg-warning/10 px-4 py-2 text-sm text-warning">
-                Secret variables cannot be read from Azure DevOps; their values are exported
-                empty.
-              </div>
+              <Callout variant="warning">
+                Secret variables cannot be read from Azure DevOps; their values are exported empty.
+              </Callout>
             )}
 
             <SectionCard title="XLSX export">

@@ -10,7 +10,6 @@ interface SectionCardProps {
   contentClassName?: string;
 }
 
-/** A titled card section with optional right-aligned actions. */
 export function SectionCard({
   title,
   actions,
@@ -21,8 +20,14 @@ export function SectionCard({
   return (
     <Card className={className}>
       {(title || actions) && (
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b py-3">
-          {title ? <CardTitle className="text-sm">{title}</CardTitle> : <span />}
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b bg-muted/30 py-3 rounded-t-[calc(var(--radius)+2px)]">
+          {title ? (
+            <CardTitle className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {title}
+            </CardTitle>
+          ) : (
+            <span />
+          )}
           {actions && <div className="flex items-center gap-2">{actions}</div>}
         </CardHeader>
       )}

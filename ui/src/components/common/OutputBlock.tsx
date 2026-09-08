@@ -7,18 +7,12 @@ import { downloadText } from '@/lib/utils/download';
 interface OutputBlockProps {
   title?: string;
   value: string;
-  /** Filename for the download button (omit to hide download). */
   downloadName?: string;
   downloadMime?: string;
-  /** Extra actions rendered before copy/download. */
   actions?: React.ReactNode;
   emptyHint?: string;
 }
 
-/**
- * A read-only monospace output panel with copy + download actions. Reused by
- * the App Settings generation / sort / export tools.
- */
 export function OutputBlock({
   title = 'Output',
   value,
@@ -52,7 +46,7 @@ export function OutputBlock({
       contentClassName="p-0"
     >
       {hasValue ? (
-        <pre className="max-h-[420px] overflow-auto scrollbar-thin whitespace-pre-wrap break-words rounded-b-lg bg-muted/40 p-4 font-mono text-sm leading-relaxed">
+        <pre className="max-h-[560px] overflow-auto scrollbar-thin whitespace-pre-wrap break-words rounded-b-[calc(var(--radius)+2px)] bg-code-bg border-t border-border/60 p-4 font-mono text-[13px] leading-relaxed">
           {value}
         </pre>
       ) : (

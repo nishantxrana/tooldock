@@ -11,17 +11,10 @@ import { REQUIRED_PAT_SCOPES } from '@/lib/constants';
 import { useCtrlEnter } from '@/lib/hooks/useHotkeys';
 
 interface ConnectFormProps {
-  /** Card title. Defaults to a generic "Connect to Azure DevOps". */
   title?: string;
-  /** Called after the session store has isConnected: true. */
   onConnected: () => void;
 }
 
-/**
- * The connect form itself: org + PAT inputs, scope hints, validation and
- * submit. Shared between the standalone /connect route and the inline gate
- * shown in place of a locked tool.
- */
 export function ConnectForm({ title = 'Connect to Azure DevOps', onConnected }: ConnectFormProps) {
   const connect = useSessionStore((s) => s.connect);
   const selectProject = useSessionStore((s) => s.selectProject);
@@ -42,7 +35,6 @@ export function ConnectForm({ title = 'Connect to Azure DevOps', onConnected }: 
       const org = organization.trim();
       const projects = await listProjects(org, { patOverride: pat });
       connect(pat, org);
-      // Convenience: auto-select if the org has exactly one project.
       if (projects.length === 1) selectProject(projects[0]!);
       onConnected();
     } catch (err) {
@@ -75,7 +67,7 @@ export function ConnectForm({ title = 'Connect to Azure DevOps', onConnected }: 
             autoComplete="off"
           />
           <p className="text-xs text-muted-foreground">
-            The name in <code className="font-mono">dev.azure.com/&lt;organization&gt;</code>.
+            The name in <code>dev.azure.com/&lt;organization&gt;</code>.
           </p>
         </div>
 
@@ -94,7 +86,7 @@ export function ConnectForm({ title = 'Connect to Azure DevOps', onConnected }: 
             <button
               type="button"
               onClick={() => setShowPat((s) => !s)}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               aria-label={showPat ? 'Hide token' : 'Show token'}
             >
               {showPat ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -102,9 +94,9 @@ export function ConnectForm({ title = 'Connect to Azure DevOps', onConnected }: 
           </div>
         </div>
 
-        <div className="rounded-md border border-border bg-muted/40 p-3">
+        <div className="rounded-md border border-primary/20 bg-primary/5 p-3">
           <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-            <ShieldCheck className="h-3.5 w-3.5" />
+            <ShieldCheck className="h-3.5 w-3.5 text-primary" />
             PAT scopes
           </p>
           <ul className="space-y-1.5">
@@ -126,13 +118,12 @@ export function ConnectForm({ title = 'Connect to Azure DevOps', onConnected }: 
 
         {error != null && <ErrorBanner error={error} />}
 
-        <Button className="w-full" disabled={!canSubmit} onClick={handleConnect}>
+        <Button className="w-full h-10" disabled={!canSubmit} onClick={handleConnect}>
           {validating && <Loader2 className="animate-spin" />}
           {validating ? 'Connecting…' : 'Connect'}
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          Press <kbd className="rounded border px-1">Ctrl</kbd> +{' '}
-          <kbd className="rounded border px-1">Enter</kbd> to connect
+          Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to connect
         </p>
       </CardContent>
     </Card>

@@ -19,12 +19,12 @@ export function Header({ onToggleSidebar }: HeaderProps) {
   const disconnect = useSessionStore((s) => s.disconnect);
 
   const handleDisconnect = async () => {
-    await unlockPat().catch(() => {}); // best-effort IDB clear before disconnecting
+    await unlockPat().catch(() => {});
     disconnect();
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-sidebar-border bg-background/98 px-4 backdrop-blur-md">
       <Button variant="ghost" size="icon" className="lg:hidden" onClick={onToggleSidebar} aria-label="Toggle sidebar">
         <PanelLeft />
       </Button>
@@ -32,15 +32,20 @@ export function Header({ onToggleSidebar }: HeaderProps) {
       <Logo />
 
       {isConnected && (
-        <div className="ml-2 flex items-center gap-2">
-          <Badge variant="success" className="gap-1.5">
-            <Wifi className="h-3 w-3" />
-            Connected
-          </Badge>
-          {organization && (
-            <span className="hidden text-sm text-muted-foreground sm:inline">{organization}</span>
-          )}
-        </div>
+        <>
+          <div className="h-5 w-px bg-border mx-1" />
+          <div className="flex items-center gap-2">
+            <Badge variant="success" className="gap-1.5">
+              <Wifi className="h-3 w-3" />
+              Connected
+            </Badge>
+            {organization && (
+              <Badge variant="outline" className="hidden sm:inline-flex">
+                {organization}
+              </Badge>
+            )}
+          </div>
+        </>
       )}
 
       <div className="ml-auto flex items-center gap-2">

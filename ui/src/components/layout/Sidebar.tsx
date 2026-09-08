@@ -11,7 +11,6 @@ interface SidebarProps {
   onNavigate: () => void;
 }
 
-/** Left sidebar: searchable, grouped, scrollable list of tools. */
 export function Sidebar({ open, onNavigate }: SidebarProps) {
   const [query, setQuery] = useState('');
 
@@ -32,24 +31,24 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-card pt-14 transition-transform lg:static lg:translate-x-0 lg:pt-0',
+        'fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-sidebar-border bg-sidebar pt-14 transition-transform lg:static lg:translate-x-0 lg:pt-0',
         open ? 'translate-x-0' : '-translate-x-full',
       )}
     >
-      <div className="border-b border-border p-3">
+      <div className="flex h-14 items-center border-b border-sidebar-border px-3">
         <SearchBox value={query} onChange={setQuery} placeholder="Search tools…" />
       </div>
 
-      <nav className="flex-1 space-y-4 overflow-y-auto scrollbar-thin p-3">
+      <nav className="flex-1 space-y-5 overflow-y-auto scrollbar-thin p-3">
         {groups.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-8 text-center text-sm text-muted-foreground">
             <Search className="h-5 w-5" />
-            No tools match “{query}”.
+            No tools match "{query}".
           </div>
         )}
         {groups.map(({ group, tools }) => (
           <div key={group}>
-            <p className="px-2 pb-1.5 text-xs font-medium text-muted-foreground">
+            <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
               {group}
             </p>
             <ul className="space-y-0.5">
@@ -60,10 +59,10 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
                     onClick={onNavigate}
                     className={({ isActive }) =>
                       cn(
-                        'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors',
+                        'relative flex items-center gap-2.5 rounded-md px-3 py-1.5 text-sm transition-colors',
                         isActive
-                          ? 'bg-accent font-medium text-accent-foreground'
-                          : 'text-foreground/80 hover:bg-muted hover:text-foreground',
+                          ? 'bg-primary/8 text-primary font-medium before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:rounded-full before:bg-primary'
+                          : 'text-sidebar-foreground/70 hover:bg-primary/5 hover:text-sidebar-foreground',
                       )
                     }
                   >
@@ -78,7 +77,7 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Lock
-                            className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground"
+                            className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/50"
                             aria-label="Requires connection"
                           />
                         </TooltipTrigger>

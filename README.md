@@ -19,11 +19,13 @@ flowchart LR
     SPA["React SPA"]
     Paste["Paste-only tools (no network)"]
   end
-  SPA -->|"Authorization: Basic base64(:PAT)"| AdoProxy["/ado"]
+  SPA -->|"projects, variable groups"| AdoProxy["/ado"]
   SPA -->|"release definitions"| VsrmProxy["/vsrm"]
   AdoProxy --> Ado["dev.azure.com"]
   VsrmProxy --> Vsrm["vsrm.dev.azure.com"]
 ```
+
+Every request on both paths carries the same `Authorization: Basic base64(":" + PAT)` header.
 
 ## Contents
 
@@ -99,15 +101,15 @@ sequenceDiagram
   participant Proxy
   participant ADO as AzureDevOps
   User->>SPA: Enter organization and PAT
+  Note over SPA: Every request: Authorization Basic base64(:PAT)
   SPA->>Proxy: GET /ado/{org}/_apis/projects
-  Note over SPA: Authorization Basic base64(:PAT)
-  Proxy->>ADO: Forward with the Authorization header
+  Proxy->>ADO: Forward to dev.azure.com
   ADO-->>SPA: JSON, PAT accepted
   SPA->>Proxy: GET /vsrm/{org}/{project}/_apis/release/definitions
-  Proxy->>ADO: Forward to vsrm subdomain
+  Proxy->>ADO: Forward to vsrm.dev.azure.com
 ```
 
-Access to a tool is gated twice. The router wraps every registry entry with `requiresConnection: true` in [RequireConnection](ui/src/components/common/RequireConnection.tsx), which shows the connect form inline on an in-app click and redirects to the home page on a refresh or typed URL. Each connected tool then wraps its own body in [RequireProject](ui/src/components/common/RequireProject.tsx), so the header project selector is enforced separately from the session.
+Access to a tool is gated twice. The router wraps every registry entry with `requiresConnection: true` in [RequireConnection](ui/src/components/common/RequireConnection.tsx). When there is no session, an in-app click renders the connect form inline on the same URL, while a refresh or typed URL redirects to the home page so every tool stays visible. Each connected tool then wraps its own body in [RequireProject](ui/src/components/common/RequireProject.tsx), so project selection is enforced separately from the session.
 
 API versions in use, from [ui/src/lib/constants.ts](ui/src/lib/constants.ts):
 

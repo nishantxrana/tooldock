@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Download, GitBranch, Info, Loader2, RefreshCw } from 'lucide-react';
+import { Download, GitBranch, Loader2, RefreshCw } from 'lucide-react';
+import { Callout } from '@/components/common/Callout';
 import { PageLayout } from '@/components/common/PageLayout';
 import { SectionCard } from '@/components/common/SectionCard';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -78,14 +79,11 @@ export function ReleaseGroupMapping() {
         icon={GitBranch}
       >
         {/* PAT scope notice */}
-        <div className="flex items-start gap-2.5 rounded-md border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm text-blue-700 dark:text-blue-300">
-          <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
-          <span>
-            This tool requires a PAT with <strong>Release (read)</strong> scope in addition to
-            Variable Groups (read). If you see a 403 error, regenerate your PAT and add the Release
-            scope.
-          </span>
-        </div>
+        <Callout variant="info">
+          This tool requires a PAT with <strong>Release (read)</strong> scope in addition to
+          Variable Groups (read). If you see a 403 error, regenerate your PAT and add the Release
+          scope.
+        </Callout>
 
         {isLoading && (
           <SectionCard title="Loading release pipelines…">
