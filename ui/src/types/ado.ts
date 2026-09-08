@@ -61,10 +61,18 @@ export interface ReleaseDefinitionRef {
   name: string;
 }
 
+/** Inline variable value as returned by the release definition endpoint. */
+export interface ReleaseVariable {
+  value?: string;
+  isSecret?: boolean;
+}
+
 /** One stage (environment) within a release definition. */
 export interface ReleaseEnvironment {
   id: number;
   name: string;
+  /** Inline variables defined specifically for this stage. */
+  variables: Record<string, ReleaseVariable>;
   /** IDs of variable groups attached specifically to this stage. */
   variableGroups: number[];
 }
@@ -73,6 +81,8 @@ export interface ReleaseEnvironment {
 export interface ReleaseDefinition {
   id: number;
   name: string;
+  /** Inline variables shared across all stages. */
+  variables: Record<string, ReleaseVariable>;
   /** IDs of variable groups attached at definition level (shared across all stages). */
   variableGroups: number[];
   environments: ReleaseEnvironment[];

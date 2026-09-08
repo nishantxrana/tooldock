@@ -15,6 +15,7 @@ import { CsvImport } from './csv-import/CsvImport';
 import { ExportGroup } from './export-group/ExportGroup';
 import { ExportAllGroups } from './export-all-groups/ExportAllGroups';
 import { ReleaseGroupMapping } from './release-group-mapping/ReleaseGroupMapping';
+import { ExportReleaseVars } from './export-release-vars/ExportReleaseVars';
 import { DuplicateFinder } from './duplicate-finder/DuplicateFinder';
 import { SortAppSettings } from './sort-appsettings/SortAppSettings';
 
@@ -72,6 +73,16 @@ export const TOOLS: readonly ToolDefinition[] = [
     group: 'Variable Groups',
     path: '/tools/export-all-groups',
     component: ExportAllGroups,
+    requiresConnection: true,
+  },
+  {
+    id: 'export-release-vars',
+    title: 'Export Release Variables',
+    description: 'Export inline pipeline variables to CSV, JSON, TXT, or XLSX for migration to a variable group.',
+    icon: GitBranch,
+    group: 'Release Pipelines',
+    path: '/tools/export-release-vars',
+    component: ExportReleaseVars,
     requiresConnection: true,
   },
   {

@@ -80,10 +80,18 @@ export async function exportKeyValueXlsx(
   filename: string,
   sheetName: string,
   rows: XlsxRow[],
+  options: { titleRow?: boolean } = {},
 ): Promise<void> {
+  const { titleRow = true } = options;
   const XLSX = await import('xlsx');
 
-  const sheet = buildKeyValueSheet(XLSX, sheetName, rows);
+  let sheet;
+  if (titleRow) {
+    sheet = buildKeyValueSheet(XLSX, sheetName, rows);
+  } else {
+    const sheetData = [['Key', 'Value'], ...rows.map((r) => [r.key, r.value])];
+    sheet = XLSX.utils.aoa_to_sheet(sheetData);
+  }
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, sheet, safeSheetName(sheetName));
 
