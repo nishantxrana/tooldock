@@ -49,7 +49,7 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
         )}
         {groups.map(({ group, tools }) => (
           <div key={group}>
-            <p className="px-2 pb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <p className="px-2 pb-1.5 text-xs font-medium text-muted-foreground">
               {group}
             </p>
             <ul className="space-y-0.5">

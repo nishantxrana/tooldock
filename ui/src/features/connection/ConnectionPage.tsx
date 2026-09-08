@@ -1,5 +1,4 @@
 import { useLocation, useNavigate, type Location } from 'react-router-dom';
-import { KeyRound } from 'lucide-react';
 import { Logo } from '@/components/layout/Logo';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { ConnectForm } from './ConnectForm';
@@ -30,9 +29,7 @@ export function ConnectionPage() {
       <div className="flex flex-1 items-center justify-center bg-muted/30 px-4 py-12">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <KeyRound className="h-6 w-6" />
-            </div>
+            <img src="/favicon.svg" alt={APP_NAME} className="mx-auto mb-3 h-12 w-12" />
             <h1 className="text-2xl font-semibold tracking-tight">{APP_NAME}</h1>
             <p className="mt-1 text-sm text-muted-foreground">{APP_SUBTITLE}</p>
           </div>

@@ -151,7 +151,7 @@ export function ReleaseGroupMapping() {
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
-                            <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            <tr className="border-b border-border text-left text-xs font-semibold text-muted-foreground">
                               <th className="px-4 py-2.5">Pipeline Name</th>
                               <th className="px-4 py-2.5">Stage</th>
                               <th className="px-4 py-2.5">Scope</th>

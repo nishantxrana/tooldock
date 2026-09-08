@@ -1,35 +1,67 @@
+<p align="center">
+  <img src="ui/public/tooldock-icon-512.png" width="96" alt="ToolDock icon: a teal hex nut seated on a docking bar, on a dark rounded square">
+</p>
+
 # ToolDock
 
-**ToolDock is a browser toolkit for Azure DevOps engineers who want to manage variable groups and App Service settings without repetitive copy-paste.**
+**ToolDock is a browser-only toolkit for Azure DevOps engineers who manage variable groups, App Service settings, and release pipeline variables — nine focused tools instead of the portal plus a spreadsheet plus copy-paste.**
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)
 
-Frontend-only: no backend, no database. Paste a Personal Access Token (PAT) once per session; it stays in memory until you refresh.
+No backend, no database, no telemetry. Connect with an organization and a Personal Access Token, pick a project, and work. Two tools need no account at all.
 
 ```mermaid
 flowchart LR
-  Browser["React SPA"] -->|"PAT in memory"| Proxy["/ado proxy"]
-  Proxy --> Ado["dev.azure.com"]
-  Browser --> Tools["Variable Group and App Settings tools"]
+  subgraph browserOnly [Browser only]
+    SPA["React SPA"]
+    Paste["Paste-only tools (no network)"]
+  end
+  SPA -->|"Authorization: Basic base64(:PAT)"| AdoProxy["/ado"]
+  SPA -->|"release definitions"| VsrmProxy["/vsrm"]
+  AdoProxy --> Ado["dev.azure.com"]
+  VsrmProxy --> Vsrm["vsrm.dev.azure.com"]
 ```
+
+## Contents
+
+- [Who it's for](#who-its-for)
+- [Features](#features)
+- [Quick start](#quick-start)
+- [How it works](#how-it-works)
+- [Security model](#security-model)
+- [Scripts](#scripts)
+- [Deploy](#deploy)
+- [Tech stack](#tech-stack)
+- [Project structure](#project-structure)
+- [Extending](#extending)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Who it's for
 
-Azure DevOps engineers who maintain variable groups and App Service Deploy settings. ToolDock runs entirely in the browser: you connect with an org + PAT, pick a project, and use the tools. Two local tools work without a connection for pasted App Settings text.
+Azure DevOps engineers who keep variable groups in sync with App Service Deploy settings, migrate inline release pipeline variables into variable groups, or need to know which pipelines actually consume a given variable group before changing it.
+
+ToolDock runs entirely in your browser. Seven tools need a connected session and a selected project; Duplicate Finder and Sort App Settings work on pasted text with no account, so they are usable in zero clicks.
 
 ## Features
 
-| Feature | What it does |
-| --- | --- |
-| **Generate App Service Settings** | Turn a variable group into the `-KEY "$(KEY)"` string for the App Service Deploy task. |
-| **Compare vs App Settings** | Diff a variable group against pasted App Settings (matched / missing / extra / duplicates). |
-| **CSV Import** | Import `Key,Value` CSV into a variable group, with preview and confirmation before writing. |
-| **Export Variable Group** | Export a variable group as CSV, JSON, or TXT. |
-| **Duplicate Finder** | Find duplicate keys in pasted App Settings (no connection required). |
-| **Sort App Settings** | Sort pasted App Settings alphabetically (no connection required). |
+| Tool | What it does | Needs connection |
+| --- | --- | --- |
+| **Generate App Service Settings** | Builds the `-KEY "$(KEY)"` argument string from a variable group's variable names (values are ignored), as one line or multiline. | Yes |
+| **Compare vs App Settings** | Diffs a variable group against pasted App Settings into matched / missing / extra / duplicate buckets, with search and a text report. | Yes |
+| **CSV Import** | Imports `Key,Value` rows into a variable group. Shows a per-key overwrite/new/same plan and requires confirmation before writing. | Yes |
+| **Export Variable Group** | Exports one group as CSV, JSON, TXT, or XLSX. JSON matches the Azure DevOps variables shape. | Yes |
+| **Export All Variable Groups** | Exports the selected groups of a project into a single multi-sheet XLSX workbook, one sheet per group. | Yes |
+| **Export Release Variables** | Exports a release pipeline's inline variables — definition-level or a single stage — as CSV, JSON, TXT, or XLSX, shaped for migration into a variable group. | Yes |
+| **Release Pipeline Mapping** | Reverse index: for each variable group, which release pipelines and stages consume it. Exports every group and pipeline to XLSX. | Yes |
+| **Duplicate Finder** | Finds duplicate keys in pasted App Settings, with line numbers and the source highlighted. | No |
+| **Sort App Settings** | Sorts pasted App Settings alphabetically, preserving formatting. | No |
+
+CSV Import is the only tool that writes to Azure DevOps. Everything else reads.
 
 ## Quick start
 
@@ -39,18 +71,26 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173), enter your **organization** and **PAT**, select a project, and use the tools.
+Open [http://localhost:5173](http://localhost:5173), enter your **organization** and **PAT**, and select a project.
 
-Minimum PAT scopes (Azure DevOps → User settings → Personal access tokens):
+PAT scopes (Azure DevOps → User settings → Personal access tokens):
 
-- **Variable Groups** → Read, create, & manage (needed for CSV Import writes)
-- **Project and Team** → Read (list projects)
+| Scope | Why | Required |
+| --- | --- | --- |
+| Variable Groups → Read, create, & manage | Read variable groups; write changes (CSV Import) | Yes |
+| Project and Team → Read | List the projects in your organization | Yes |
+| Release → Read | Read release pipeline definitions (the two Release Pipelines tools) | Optional |
 
-Do not grant Full access.
+Do not grant Full access. If you never use CSV Import, a read-only PAT covers eight of the nine tools — see [Security model](#security-model).
 
 ## How it works
 
-Azure DevOps REST APIs do not send CORS headers, so the browser cannot call `https://dev.azure.com` directly. ToolDock calls a relative `/ado/*` path; a same-origin proxy forwards those requests to Azure DevOps.
+Azure DevOps sends no CORS headers, so the browser cannot call it directly. ToolDock only ever requests same-origin relative paths, and a proxy forwards them. There are **two** upstreams, because release definitions live on a separate subdomain:
+
+| Path | Upstream | Used by |
+| --- | --- | --- |
+| `/ado/*` | `https://dev.azure.com` | Projects, variable groups |
+| `/vsrm/*` | `https://vsrm.dev.azure.com` | Release pipeline definitions |
 
 ```mermaid
 sequenceDiagram
@@ -58,119 +98,155 @@ sequenceDiagram
   participant SPA
   participant Proxy
   participant ADO as AzureDevOps
-  User->>SPA: Enter org and PAT
-  SPA->>Proxy: GET /ado/org/_apis/...
-  Note over SPA: Authorization Basic PAT
-  Proxy->>ADO: Forward without browser cookies
-  ADO-->>SPA: JSON response
-  Note over SPA: Refresh clears PAT from memory
+  User->>SPA: Enter organization and PAT
+  SPA->>Proxy: GET /ado/{org}/_apis/projects
+  Note over SPA: Authorization Basic base64(:PAT)
+  Proxy->>ADO: Forward with the Authorization header
+  ADO-->>SPA: JSON, PAT accepted
+  SPA->>Proxy: GET /vsrm/{org}/{project}/_apis/release/definitions
+  Proxy->>ADO: Forward to vsrm subdomain
 ```
 
-| Layer | Role |
+Access to a tool is gated twice. The router wraps every registry entry with `requiresConnection: true` in [RequireConnection](ui/src/components/common/RequireConnection.tsx), which shows the connect form inline on an in-app click and redirects to the home page on a refresh or typed URL. Each connected tool then wraps its own body in [RequireProject](ui/src/components/common/RequireProject.tsx), so the header project selector is enforced separately from the session.
+
+API versions in use, from [ui/src/lib/constants.ts](ui/src/lib/constants.ts):
+
+| Resource | Version |
 | --- | --- |
-| React SPA (`ui/`) | UI, session store, tool registry |
-| `/ado` proxy | Vite (dev) or Vercel / Netlify / nginx (prod) |
-| Azure DevOps | Projects + Variable Groups APIs |
+| Projects | `7.1` |
+| Variable groups | `7.2-preview.2` |
+| Release definitions | `7.1` |
 
-API versions used in code: Projects `7.1`, Variable Groups `7.2-preview.2`.
-
-Contributor depth (adding tools, layout notes): see [ui/README.md](ui/README.md).
+Plain `7.2` is rejected for projects without a preview flag, so the released `7.1` is used. Contributor depth — layout conventions, adding a tool — lives in [ui/README.md](ui/README.md).
 
 ## Security model
 
-- The PAT lives **only in runtime memory** (Zustand). No `localStorage`, `sessionStorage`, cookies, or IndexedDB. **Refreshing the page clears it.**
-- Auth header: `Authorization: Basic base64(":" + PAT)`. The PAT is never logged.
-- The Vite / nginx proxies strip browser cookies before forwarding so unrelated localhost cookies are not sent to Azure DevOps.
-- Write tools (CSV Import) learn write permission reactively from API responses; a 403 disables further writes for the session.
+**By default the PAT never leaves memory.** [sessionStore.ts](ui/src/store/sessionStore.ts) is plain Zustand with no `persist` middleware: no `localStorage`, no `sessionStorage`, no cookies. Refreshing the page clears the session and forces reconnection.
+
+**Staying signed in is opt-in and encrypted.** The lock button in the header hands the PAT to [patVault.ts](ui/src/lib/utils/patVault.ts), which encrypts it with AES-GCM-256 under a **non-extractable** `CryptoKey` and stores the ciphertext plus that key in IndexedDB (`tooldock-vault`). The plaintext PAT never touches disk. On the next load the app decrypts it before React mounts, so you render as already connected.
+
+What the vault does and does not protect against:
+
+- **30-minute window, sliding.** Every successful restore resets the clock, so periodic refreshes keep the PAT on disk indefinitely. Expiry deletes the disk copy but does not end the open session.
+- **It defends against disk and browser-profile inspection, not against same-origin script.** The key cannot be exported, but any code running on ToolDock's origin can ask the browser to decrypt with it. Treat an XSS on your deployment as full PAT exposure for the lifetime of the vault entry.
+- **The organization name is stored in cleartext** next to the ciphertext. The selected project is never persisted.
+- **On a shared machine, opting in means the next person to open the browser is connected as you.** There is no PIN or re-entry prompt, and the in-memory session has no idle timeout.
+- Disconnect wipes the vault, and the lock can be released manually at any time.
+
+Transport and proxy notes:
+
+- `Authorization: Basic base64(":" + PAT)` is encoding, not encryption. The header traverses whatever proxies your deployment uses. Self-hosters should confirm access logs, APM, and WAF rules do not capture request headers — [nginx.conf.example](ui/nginx.conf.example) calls this out inline.
+- The proxy is **unauthenticated and unrestricted**: `/ado/*` forwards anything to Azure DevOps. A publicly reachable deployment is an open relay that anyone can use with their own PAT. Keep it private or put access control in front of it.
+- Browser cookies are stripped in the Vite dev proxy and in the nginx example, because cookies shared across a host cause upstream `400 Bad Request`. Vercel and Netlify rewrites do not strip them, so avoid deploying on a domain shared with cookie-setting apps.
+
+Permissions and data:
+
+- **Least privilege works.** Only CSV Import needs the manage scope. Write permission cannot be introspected from the browser, so it is learned reactively: a rejected write flips `variableGroupsWritable` to `false`, disables the import button with an explanation, and leaves preview working for the rest of the session.
+- **Writes replace the whole variables map.** The update endpoint requires a full body, so the client re-reads the authoritative group, applies the diff on top, and puts it back. The safety net is the preview plus confirmation dialog, not the API.
+- **Secrets cannot be read back.** Azure DevOps returns secret variables with empty values; the export tools warn when a group contains them, and CSV Import always treats a secret as an overwrite.
+- Non-secret variable **values** do land in your Downloads folder in plaintext when you export. Treat those files as configuration secrets.
 
 ## Scripts
 
 Run from `ui/`:
 
-| Script | Command |
+| Script | What it does |
 | --- | --- |
-| `npm run dev` | Dev server with `/ado` → `dev.azure.com` proxy |
-| `npm run build` | Typecheck + production build → `dist/` |
-| `npm run preview` | Preview the production build |
+| `npm run dev` | Dev server (default port 5173) with the `/ado` and `/vsrm` proxies |
+| `npm run build` | `tsc -b` then production build → `dist/` |
+| `npm run preview` | Serve the production build locally |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm run lint` | ESLint (`--max-warnings 0`) |
+| `npm run lint` | ESLint with `--max-warnings 0` |
 | `npm run format` | Prettier on `src/**/*.{ts,tsx,css}` |
 
 ## Deploy
 
-Build static assets, then serve `dist/` **and** rewrite `/ado/*` to Azure DevOps (proxy rules must come before the SPA fallback).
+Build the static assets, then serve `dist/` **and** rewrite both proxy paths. Proxy rules must come before the SPA fallback, or requests resolve to `index.html` and the app reports that Azure DevOps did not return JSON.
 
 ```bash
 cd ui
 npm run build
 ```
 
-Ready-made configs in `ui/`:
+Ready-made configs, all covering `/ado` and `/vsrm`:
 
 | Platform | Config |
 | --- | --- |
-| Vercel | [ui/vercel.json](ui/vercel.json) — `/ado/:path*` rewrite + SPA fallback |
-| Netlify | [ui/netlify.toml](ui/netlify.toml) — build `npm run build`, publish `dist`, `/ado/*` proxy |
-| nginx | [ui/nginx.conf.example](ui/nginx.conf.example) — `proxy_pass` + cookie strip + `try_files` |
+| Vercel | [ui/vercel.json](ui/vercel.json) — both rewrites, plus a fallback that excludes them |
+| Netlify | [ui/netlify.toml](ui/netlify.toml) — `force = true` proxies ahead of the SPA fallback |
+| nginx | [ui/nginx.conf.example](ui/nginx.conf.example) — `proxy_pass` per upstream, cookie stripping, `try_files` |
 
-Point the host root directory at `ui/` (or copy the config next to your deploy root). No app env vars are required; org and PAT are entered in the UI.
+Point the host's root directory at `ui/`. There are no application environment variables; organization and PAT are entered in the UI.
 
 ## Tech stack
 
 | Layer | Choice |
 | --- | --- |
 | UI | React 18, TypeScript 5 (strict), Vite 6 |
-| Routing / data | React Router 6, TanStack Query 5 |
-| State | Zustand 5 (in-memory session only) |
-| Styling | Tailwind CSS 3, shadcn/ui (new-york), Lucide, Sonner |
+| Routing and data | React Router 6, TanStack Query 5 (memory cache, `retry: 1`) |
+| State | Zustand 5 for the session; optional AES-GCM vault in IndexedDB |
+| Styling | Tailwind CSS 3, shadcn/ui (new-york), Radix primitives, Lucide, Sonner |
+| Spreadsheets | SheetJS `xlsx` 0.20.3, installed from `cdn.sheetjs.com` rather than the npm registry |
 
 ## Project structure
 
-```
+```text
 ToolDock/
-├── README.md                 # this showcase
-└── ui/                       # entire application
-    ├── README.md             # contributor guide
-    ├── package.json
-    ├── vite.config.ts        # /ado dev proxy
-    ├── vercel.json
-    ├── netlify.toml
-    ├── nginx.conf.example
-    ├── public/favicon.svg
+├── README.md                  # this file
+├── docs/                      # design specs
+└── ui/                        # the entire application
+    ├── README.md              # contributor guide
+    ├── vite.config.ts         # /ado + /vsrm dev proxies
+    ├── vercel.json, netlify.toml, nginx.conf.example
+    ├── public/                # favicons and app icons
     └── src/
+        ├── router.tsx         # routes generated from the tool registry
         ├── features/
-        │   ├── connection/   # connect screen
-        │   └── tools/        # tool registry + tools
-        ├── lib/api/          # ADO client helpers
-        ├── store/            # sessionStore (PAT in memory)
-        └── components/       # layout + UI primitives
+        │   ├── connection/    # connect form and page
+        │   ├── home/          # all tools, split by connection requirement
+        │   └── tools/         # registry.ts + one directory per tool
+        ├── lib/
+        │   ├── api/           # client, auth header, errors, per-resource modules
+        │   ├── hooks/         # TanStack Query hooks
+        │   └── utils/         # patVault, csv, xlsx, diff, appSettings, theme
+        ├── store/             # sessionStore (PAT, org, project)
+        ├── types/             # ado.ts, tools.ts (ToolDefinition)
+        └── components/        # layout, shared common pieces, shadcn/ui
 ```
 
 ## Extending
 
-Sidebar and routes are generated from `ui/src/features/tools/registry.ts`:
+The sidebar, the home page, and the routes are all generated from [ui/src/features/tools/registry.ts](ui/src/features/tools/registry.ts). Adding a tool is two steps:
 
-1. Add `ui/src/features/tools/<your-tool>/YourTool.tsx`
-2. Add one `ToolDefinition` entry to `TOOLS` in `registry.ts`
+1. Create `ui/src/features/tools/<your-tool>/YourTool.tsx`.
+2. Append one `ToolDefinition` to `TOOLS` — `id`, `title`, `description`, `icon`, `group`, `path`, `component`, `requiresConnection`.
 
-No separate router or sidebar edits. Details: [ui/README.md](ui/README.md).
+No router or sidebar edits. `group` must be one of the `ToolGroup` values in [ui/src/types/tools.ts](ui/src/types/tools.ts), and `requiresConnection: false` keeps a paste-only tool ungated. Details in [ui/README.md](ui/README.md).
 
 ## FAQ
 
-**Why a proxy?** Azure DevOps does not send CORS headers. The browser must use a same-origin `/ado` rewrite.
+**Why does it need a proxy?** Azure DevOps sends no CORS headers, so a browser cannot call `dev.azure.com` directly. Every request goes to a same-origin path that a rewrite forwards.
 
-**Is my PAT stored on disk?** No. It is held only in the Zustand session store. A refresh forces reconnection.
+**Is my PAT stored on disk?** Not unless you click the lock button. Then it is stored AES-GCM-256 encrypted in IndexedDB for a rolling 30 minutes, and the plaintext never hits disk. Without opting in, a refresh wipes it.
 
-**Do all tools need auth?** No. Duplicate Finder and Sort App Settings work on pasted text without a connection. Variable Group tools require connect.
+**Does refreshing keep me connected?** Only with the lock enabled and within the window. Even then the selected project is not restored, so you re-pick it.
 
-**Is there a backend?** No. ToolDock is a static SPA; Azure DevOps is the only remote API.
+**Do all tools need a connection?** No. Duplicate Finder and Sort App Settings operate on pasted text. The other seven need an organization, a PAT, and a selected project.
 
-**Which API versions?** Projects use `7.1` (plain `7.2` is rejected without preview). Variable Groups use `7.2-preview.2`. See `ui/src/lib/constants.ts`.
+**Is there a backend?** No. ToolDock is a static SPA; the only remote APIs are Azure DevOps.
+
+**Why do the Release Pipelines tools fail when the rest work?** They need the optional Release (Read) PAT scope and the `/vsrm` proxy rule. If your deployment predates that rule, add it.
+
+**Why does `npm install` fetch from cdn.sheetjs.com?** SheetJS is distributed from its own CDN, so `package.json` pins the 0.20.3 tarball URL. It needs network access to that host at install time.
 
 ## Contributing
 
-Issues and merge requests are welcome on the project remote. There is no separate `CONTRIBUTING.md` yet — keep changes focused, match existing TypeScript/React patterns, and run `npm run typecheck` and `npm run lint` from `ui/` before opening an MR.
+Issues and merge requests are welcome at [gitlab.com/nishantxrana/tooldock](https://gitlab.com/nishantxrana/tooldock). There is no `CONTRIBUTING.md` yet — keep changes focused, follow the existing TypeScript and React patterns, and run `npm run typecheck` and `npm run lint` from `ui/` before opening one.
+
+There are no screenshots in the repo yet; a clean UI capture or a short demo GIF would be a genuinely useful contribution.
+
+When a change touches the tool registry, API versions in `constants.ts`, or how the PAT is stored, update both this README and [ui/README.md](ui/README.md) in the same merge request — those are the three facts that drift fastest.
 
 ## License
 
-License TBD — no `LICENSE` file is present in this repository yet.
+License TBD — this repository has no `LICENSE` file yet, so no usage rights are granted by default.
