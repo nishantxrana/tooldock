@@ -13,7 +13,7 @@ function ToolCard({ tool }: { tool: ToolDefinition }) {
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary">
-              <tool.icon className="h-4.5 w-4.5" />
+              <tool.icon className="h-5 w-5" />
             </div>
             {tool.requiresConnection && (
               <Badge variant="outline" className="gap-1 text-xs text-muted-foreground">
