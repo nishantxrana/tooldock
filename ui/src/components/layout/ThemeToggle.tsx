@@ -1,20 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { applyTheme, getStoredTheme, type Theme } from '@/lib/utils/theme';
 
-type Theme = 'light' | 'dark';
-
-/**
- * Light-default theme toggle. The choice is intentionally not persisted to
- * storage to honor the app's no-persistence stance; it resets on refresh.
- */
+/** Theme toggle. The choice persists across refreshes via localStorage. */
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setTheme] = useState<Theme>(getStoredTheme);
 
-  useEffect(() => {
-    const root = document.documentElement;
-    root.classList.toggle('dark', theme === 'dark');
-  }, [theme]);
+  const toggle = () => {
+    const next: Theme = theme === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+    setTheme(next);
+  };
 
   return (
     <Button
@@ -22,7 +19,7 @@ export function ThemeToggle() {
       size="icon"
       aria-label="Toggle theme"
       title="Toggle light/dark theme"
-      onClick={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
+      onClick={toggle}
     >
       {theme === 'light' ? <Moon /> : <Sun />}
     </Button>

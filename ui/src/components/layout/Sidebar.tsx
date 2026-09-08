@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Lock, Search } from 'lucide-react';
 import { SearchBox } from '@/components/common/SearchBox';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { toolsByGroup } from '@/features/tools/registry';
 import { cn } from '@/lib/utils/cn';
 
@@ -67,7 +68,20 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
                     }
                   >
                     <tool.icon className="h-4 w-4 flex-shrink-0" />
-                    <span className="truncate">{tool.title}</span>
+                    <span className="flex-1 truncate">{tool.title}</span>
+                    {tool.requiresConnection && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Lock
+                            className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground"
+                            aria-label="Requires connection"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                          Requires an Azure DevOps connection
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </NavLink>
                 </li>
               ))}

@@ -1,13 +1,42 @@
 import type { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigationType } from 'react-router-dom';
 import { useSessionStore } from '@/store/sessionStore';
+import { ConnectForm } from '@/features/connection/ConnectForm';
+
+function ConnectGate({ toolTitle }: { toolTitle: string }) {
+  return (
+    <div className="mx-auto w-full max-w-md px-6 py-16">
+      <ConnectForm title={`Connect to use ${toolTitle}`} onConnected={() => {}} />
+    </div>
+  );
+}
 
 /**
- * Route guard: redirect to /connect when there is no PAT in memory. Because the
- * session is memory-only, a page refresh always lands here.
+ * Route guard for tools that need a connection. Because the session is
+ * memory-only, a page refresh always clears it.
+ *
+ * - Reaching a gated tool via POP (refresh, typed URL, back/forward) sends the
+ *   user to the home page so they can see all tools again instead of being
+ *   dropped straight into the connect form.
+ * - Reaching it via an in-app click (PUSH/REPLACE) shows the connect form
+ *   inline, in place, on the same URL: no navigation, sidebar/header stay put.
+ *   Once `connect()` flips isConnected, this re-renders and shows `children`
+ *   automatically — onConnected has nothing else to do.
  */
-export function RequireConnection({ children }: { children: ReactNode }) {
+export function RequireConnection({
+  toolTitle,
+  children,
+}: {
+  toolTitle: string;
+  children: ReactNode;
+}) {
   const isConnected = useSessionStore((s) => s.isConnected);
-  if (!isConnected) return <Navigate to="/connect" replace />;
+  const navigationType = useNavigationType();
+
+  if (!isConnected) {
+    if (navigationType === 'POP') return <Navigate to="/" replace />;
+    return <ConnectGate toolTitle={toolTitle} />;
+  }
+
   return <>{children}</>;
 }
