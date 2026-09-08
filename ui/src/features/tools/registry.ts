@@ -4,6 +4,7 @@ import {
   Download,
   FileSpreadsheet,
   GitCompareArrows,
+  Layers,
   Terminal,
 } from 'lucide-react';
 import type { ToolDefinition } from '@/types/tools';
@@ -11,6 +12,7 @@ import { GenerateAppSettings } from './generate-appsettings/GenerateAppSettings'
 import { CompareAppSettings } from './compare-appsettings/CompareAppSettings';
 import { CsvImport } from './csv-import/CsvImport';
 import { ExportGroup } from './export-group/ExportGroup';
+import { ExportAllGroups } from './export-all-groups/ExportAllGroups';
 import { DuplicateFinder } from './duplicate-finder/DuplicateFinder';
 import { SortAppSettings } from './sort-appsettings/SortAppSettings';
 
@@ -58,6 +60,16 @@ export const TOOLS: readonly ToolDefinition[] = [
     group: 'Variable Groups',
     path: '/tools/export-group',
     component: ExportGroup,
+    requiresConnection: true,
+  },
+  {
+    id: 'export-all-groups',
+    title: 'Export All Variable Groups',
+    description: 'Export a project’s variable groups into one XLSX workbook.',
+    icon: Layers,
+    group: 'Variable Groups',
+    path: '/tools/export-all-groups',
+    component: ExportAllGroups,
     requiresConnection: true,
   },
   {

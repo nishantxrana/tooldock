@@ -68,7 +68,12 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
                     }
                   >
                     <tool.icon className="h-4 w-4 flex-shrink-0" />
-                    <span className="flex-1 truncate">{tool.title}</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="flex-1 truncate">{tool.title}</span>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">{tool.title}</TooltipContent>
+                    </Tooltip>
                     {tool.requiresConnection && (
                       <Tooltip>
                         <TooltipTrigger asChild>
