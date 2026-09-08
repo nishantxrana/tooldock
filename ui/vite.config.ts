@@ -36,6 +36,18 @@ export default defineConfig({
           });
         },
       },
+      // Release definitions live on vsrm.dev.azure.com (a separate ADO subdomain).
+      '/vsrm': {
+        target: 'https://vsrm.dev.azure.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (p) => p.replace(/^\/vsrm/, ''),
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.removeHeader('cookie');
+          });
+        },
+      },
     },
   },
 });

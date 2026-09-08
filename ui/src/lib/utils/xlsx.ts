@@ -90,6 +90,38 @@ export async function exportKeyValueXlsx(
   downloadWorkbook(XLSX, workbook, filename);
 }
 
+export interface ReleaseMappingRow {
+  groupName: string;
+  pipelineName: string;
+  stageName: string;
+  scope: string;
+}
+
+/**
+ * Build and download a single-sheet release pipeline mapping workbook.
+ * Columns: Variable Group | Pipeline Name | Stage | Scope
+ * Title row merges across all 4 columns.
+ */
+export async function exportReleaseMappingXlsx(
+  filename: string,
+  title: string,
+  rows: ReleaseMappingRow[],
+): Promise<void> {
+  const XLSX = await import('xlsx');
+
+  const sheetData = [
+    [title, '', '', ''],
+    ['Variable Group', 'Pipeline Name', 'Stage', 'Scope'],
+    ...rows.map((r) => [r.groupName, r.pipelineName, r.stageName, r.scope]),
+  ];
+  const sheet = XLSX.utils.aoa_to_sheet(sheetData);
+  sheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, sheet, 'Pipeline Mapping');
+  downloadWorkbook(XLSX, workbook, filename);
+}
+
 export interface XlsxSheetInput {
   name: string;
   rows: XlsxRow[];

@@ -3,6 +3,7 @@ import {
   CopyCheck,
   Download,
   FileSpreadsheet,
+  GitBranch,
   GitCompareArrows,
   Layers,
   Terminal,
@@ -13,6 +14,7 @@ import { CompareAppSettings } from './compare-appsettings/CompareAppSettings';
 import { CsvImport } from './csv-import/CsvImport';
 import { ExportGroup } from './export-group/ExportGroup';
 import { ExportAllGroups } from './export-all-groups/ExportAllGroups';
+import { ReleaseGroupMapping } from './release-group-mapping/ReleaseGroupMapping';
 import { DuplicateFinder } from './duplicate-finder/DuplicateFinder';
 import { SortAppSettings } from './sort-appsettings/SortAppSettings';
 
@@ -73,6 +75,16 @@ export const TOOLS: readonly ToolDefinition[] = [
     requiresConnection: true,
   },
   {
+    id: 'release-group-mapping',
+    title: 'Release Pipeline Mapping',
+    description: 'See which release pipelines use each variable group. Export to XLSX.',
+    icon: GitBranch,
+    group: 'Release Pipelines',
+    path: '/tools/release-group-mapping',
+    component: ReleaseGroupMapping,
+    requiresConnection: true,
+  },
+  {
     id: 'duplicate-finder',
     title: 'Duplicate Finder',
     description: 'Find duplicate keys in pasted App Settings.',
@@ -97,7 +109,7 @@ export const TOOLS: readonly ToolDefinition[] = [
 export const DEFAULT_TOOL_PATH = TOOLS[0]!.path;
 
 /** Tool groups in display order. */
-export const TOOL_GROUPS = ['Variable Groups', 'App Settings'] as const;
+export const TOOL_GROUPS = ['Variable Groups', 'Release Pipelines', 'App Settings'] as const;
 
 export function toolsByGroup() {
   return TOOL_GROUPS.map((group) => ({

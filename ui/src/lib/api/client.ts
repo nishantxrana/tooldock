@@ -18,14 +18,23 @@ interface RequestOptions {
    * PAT lacks the manage scope rather than being invalid).
    */
   errorContext?: AdoErrorContext;
+  /**
+   * Proxy base path. Defaults to ADO_BASE_PATH ('/ado' → dev.azure.com).
+   * Pass '/vsrm' for release-definition calls that target vsrm.dev.azure.com.
+   */
+  basePath?: string;
 }
 
-function buildUrl(pathSegments: string[], query?: Record<string, string | undefined>): string {
+function buildUrl(
+  pathSegments: string[],
+  query?: Record<string, string | undefined>,
+  basePath: string = ADO_BASE_PATH,
+): string {
   const path = pathSegments
     .map((s) => encodeURIComponent(s))
     .join('/')
     .replace(/%2F/gi, '/'); // keep intentional slashes readable — segments are pre-split
-  const url = new URL(`${ADO_BASE_PATH}/${path}`, window.location.origin);
+  const url = new URL(`${basePath}/${path}`, window.location.origin);
   if (query) {
     for (const [key, val] of Object.entries(query)) {
       if (val !== undefined) url.searchParams.set(key, val);
@@ -45,7 +54,8 @@ export async function adoRequest<T>(
   pathSegments: string[],
   options: RequestOptions = {},
 ): Promise<T> {
-  const { method = 'GET', query, body, patOverride, signal, errorContext = 'read' } = options;
+  const { method = 'GET', query, body, patOverride, signal, errorContext = 'read', basePath } =
+    options;
   const pat = patOverride ?? getSessionSnapshot().pat;
 
   if (!pat) {
@@ -62,7 +72,7 @@ export async function adoRequest<T>(
 
   let res: Response;
   try {
-    res = await fetch(buildUrl(pathSegments, query), {
+    res = await fetch(buildUrl(pathSegments, query, basePath), {
       method,
       headers,
       body: body !== undefined ? JSON.stringify(body) : undefined,

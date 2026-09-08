@@ -2,7 +2,7 @@ import type { ComponentType } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 /** Logical grouping shown as a section header in the sidebar. */
-export type ToolGroup = 'Variable Groups' | 'App Settings';
+export type ToolGroup = 'Variable Groups' | 'Release Pipelines' | 'App Settings';
 
 /**
  * A single tool. Sidebar entries and routes are generated from the registry of

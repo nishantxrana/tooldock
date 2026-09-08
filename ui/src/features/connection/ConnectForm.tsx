@@ -105,12 +105,19 @@ export function ConnectForm({ title = 'Connect to Azure DevOps', onConnected }: 
         <div className="rounded-md border border-border bg-muted/40 p-3">
           <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5" />
-            Required PAT scopes
+            PAT scopes
           </p>
           <ul className="space-y-1.5">
             {REQUIRED_PAT_SCOPES.map((scope) => (
               <li key={scope.name} className="text-xs">
-                <span className="font-medium">{scope.name}</span>
+                <span className="flex items-center gap-1.5 font-medium">
+                  {scope.name}
+                  {!scope.required && (
+                    <span className="rounded bg-muted px-1 py-0.5 text-[10px] font-normal text-muted-foreground">
+                      optional
+                    </span>
+                  )}
+                </span>
                 <span className="block text-muted-foreground">{scope.detail}</span>
               </li>
             ))}

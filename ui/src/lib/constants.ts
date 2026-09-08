@@ -40,4 +40,9 @@ export const REQUIRED_PAT_SCOPES: readonly PatScope[] = [
     detail: 'List the projects in your organization.',
     required: true,
   },
+  {
+    name: 'Release (Read)',
+    detail: 'Read release pipeline definitions (needed for Release Pipeline Mapping).',
+    required: false,
+  },
 ];

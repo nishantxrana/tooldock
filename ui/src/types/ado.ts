@@ -51,6 +51,33 @@ export interface VariableGroup {
   modifiedOn?: string;
 }
 
+// ---------------------------------------------------------------------------
+// Release Definitions
+// ---------------------------------------------------------------------------
+
+/** Lightweight reference returned by the release definitions list endpoint. */
+export interface ReleaseDefinitionRef {
+  id: number;
+  name: string;
+}
+
+/** One stage (environment) within a release definition. */
+export interface ReleaseEnvironment {
+  id: number;
+  name: string;
+  /** IDs of variable groups attached specifically to this stage. */
+  variableGroups: number[];
+}
+
+/** Full release definition returned by the single-definition GET endpoint. */
+export interface ReleaseDefinition {
+  id: number;
+  name: string;
+  /** IDs of variable groups attached at definition level (shared across all stages). */
+  variableGroups: number[];
+  environments: ReleaseEnvironment[];
+}
+
 /**
  * Body for PUT .../variablegroups/{groupId}. The full variable map, name, type,
  * description AND variableGroupProjectReferences must be sent — omitting the
