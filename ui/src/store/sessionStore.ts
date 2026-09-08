@@ -5,9 +5,10 @@ import type { Project } from '@/types/ado';
  * In-memory session state. Holds the PAT, organization and the selected
  * project ONLY in runtime memory.
  *
- * SECURITY: This store is intentionally NOT persisted. There is no use of
- * localStorage / sessionStorage / cookies / IndexedDB. A page refresh clears
- * everything and forces reconnection. The PAT must never be logged.
+ * SECURITY: The PAT is never persisted by default. localStorage / sessionStorage
+ * / cookies are never used. The user may voluntarily encrypt and store the PAT
+ * in IndexedDB via the PersistButton — see lib/utils/patVault.ts. A page
+ * refresh without that opt-in clears everything and forces reconnection.
  */
 interface SessionState {
   pat: string | null;
@@ -21,10 +22,15 @@ interface SessionState {
    * the browser, so this is learned reactively.
    */
   variableGroupsWritable: boolean | null;
+  /** Whether the PAT is currently persisted to encrypted IndexedDB. */
+  isPatPersisted: boolean;
+  /** Timestamp (ms) when the PAT was last locked — drives the countdown timer. */
+  lockedAt: number | null;
 
   connect: (pat: string, organization: string) => void;
   selectProject: (project: Project | null) => void;
   setVariableGroupsWritable: (writable: boolean) => void;
+  setPatPersisted: (persisted: boolean, lockedAt: number | null) => void;
   disconnect: () => void;
 }
 
@@ -34,6 +40,8 @@ export const useSessionStore = create<SessionState>((set) => ({
   selectedProject: null,
   isConnected: false,
   variableGroupsWritable: null,
+  isPatPersisted: false,
+  lockedAt: null,
 
   connect: (pat, organization) =>
     set({ pat, organization: organization.trim(), isConnected: true }),
@@ -42,6 +50,8 @@ export const useSessionStore = create<SessionState>((set) => ({
 
   setVariableGroupsWritable: (writable) => set({ variableGroupsWritable: writable }),
 
+  setPatPersisted: (persisted, lockedAt) => set({ isPatPersisted: persisted, lockedAt }),
+
   disconnect: () =>
     set({
       pat: null,
@@ -49,6 +59,8 @@ export const useSessionStore = create<SessionState>((set) => ({
       selectedProject: null,
       isConnected: false,
       variableGroupsWritable: null,
+      isPatPersisted: false,
+      lockedAt: null,
     }),
 }));
 

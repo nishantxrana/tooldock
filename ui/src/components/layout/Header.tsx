@@ -5,27 +5,27 @@ import { Badge } from '@/components/ui/badge';
 import { Logo } from './Logo';
 import { ProjectSelector } from './ProjectSelector';
 import { ThemeToggle } from './ThemeToggle';
+import { PersistButton } from './PersistButton';
+import { unlockPat } from '@/lib/utils/patVault';
 import { useSessionStore } from '@/store/sessionStore';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
 }
 
-/** Top bar: brand, connection status, project selector, session controls. */
 export function Header({ onToggleSidebar }: HeaderProps) {
   const isConnected = useSessionStore((s) => s.isConnected);
   const organization = useSessionStore((s) => s.organization);
   const disconnect = useSessionStore((s) => s.disconnect);
 
+  const handleDisconnect = async () => {
+    await unlockPat().catch(() => {}); // best-effort IDB clear before disconnecting
+    disconnect();
+  };
+
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="lg:hidden"
-        onClick={onToggleSidebar}
-        aria-label="Toggle sidebar"
-      >
+      <Button variant="ghost" size="icon" className="lg:hidden" onClick={onToggleSidebar} aria-label="Toggle sidebar">
         <PanelLeft />
       </Button>
 
@@ -48,13 +48,8 @@ export function Header({ onToggleSidebar }: HeaderProps) {
           <>
             <ProjectSelector />
             <ThemeToggle />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={disconnect}
-              aria-label="Disconnect"
-              title="Disconnect (clears PAT from memory)"
-            >
+            <PersistButton />
+            <Button variant="ghost" size="icon" onClick={handleDisconnect} aria-label="Disconnect" title="Disconnect (clears PAT from memory)">
               <LogOut />
             </Button>
           </>
