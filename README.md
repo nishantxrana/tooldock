@@ -188,8 +188,8 @@ No router or sidebar edits needed. See [ui/README.md](ui/README.md) for the full
 
 ## Contributing
 
-Issues and merge requests welcome at [gitlab.com/nishantxrana/tooldock](https://gitlab.com/nishantxrana/tooldock). Run `npm run typecheck` and `npm run lint` from `ui/` before opening one. When a change touches the tool registry, API versions in `constants.ts`, or PAT storage, update both this file and [ui/README.md](ui/README.md) in the same merge request — those three facts drift fastest.
+Issues and merge requests welcome at [github.com/nishantxrana/tooldock](https://github.com/nishantxrana/tooldock). Run `npm run typecheck` and `npm run lint` from `ui/` before opening one. When a change touches the tool registry, API versions in `constants.ts`, or PAT storage, update both this file and [ui/README.md](ui/README.md) in the same merge request — those three facts drift fastest.
 
 ## License
 
-License TBD — this repository has no `LICENSE` file, so no usage rights are granted by default.
+License TBD — this repository has no `LICENSE` file, so usage rights are granted by default.
