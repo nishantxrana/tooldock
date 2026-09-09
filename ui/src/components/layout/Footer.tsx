@@ -1,6 +1,4 @@
-import { APP_VERSION } from '@/lib/constants';
-
-const PORTFOLIO_URL = 'https://github.com/nishantxrana/portfolio';
+import { APP_VERSION, PORTFOLIO_URL } from '@/lib/constants';
 
 export function Footer() {
   return (

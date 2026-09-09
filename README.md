@@ -89,7 +89,8 @@ Key limitations of the vault:
 Proxy notes:
 
 - `Authorization: Basic` is encoding, not encryption. Verify that your deployment's access logs and WAF rules do not capture request headers — [nginx.conf.example](ui/nginx.conf.example) calls this out inline.
-- The proxy is **unauthenticated**: `/ado/*` forwards anything to Azure DevOps. A publicly reachable deployment is an open relay. Keep it private or put access control in front of it.
+- The proxy paths (`/ado/*`, `/vsrm/*`) are protected by [Vercel Edge Middleware](ui/middleware.ts): only `GET` and `PUT` requests are forwarded, and requests whose `Origin` or `Referer` header does not match the app's domain are rejected with `403`. Set the `ALLOWED_ORIGIN` environment variable in your Vercel dashboard to your live domain (e.g. `https://tooldock.notbatman.me`) to activate the origin check — without it the check is skipped (safe for local dev). `VERCEL_URL` (injected automatically by Vercel) additionally covers the `.vercel.app` deployment URL so both domains work without extra config.
+- The proxy still forwards any valid PAT supplied by the caller. HTTPS-only deployment and keeping the domain off shared infrastructure remain important.
 
 ## Scripts
 
@@ -118,7 +119,13 @@ cd ui && npm run build
 | Netlify | [ui/netlify.toml](ui/netlify.toml) |
 | nginx | [ui/nginx.conf.example](ui/nginx.conf.example) |
 
-Point the host's root directory at `ui/`. There are no application environment variables — organization and PAT are entered in the UI.
+Point the host's root directory at `ui/`. One environment variable to set on your host:
+
+| Variable | Value | Purpose |
+|---|---|---|
+| `ALLOWED_ORIGIN` | `https://your-domain.com` | Activates the proxy origin check (Vercel middleware) |
+
+Organization and PAT are entered in the UI at runtime — no other env vars needed.
 
 ## Tech stack
 

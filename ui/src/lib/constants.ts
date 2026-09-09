@@ -6,7 +6,8 @@
 export const APP_NAME = 'ToolDock';
 export const APP_SUBTITLE = 'Productivity tools for Azure DevOps engineers.';
 export const APP_VERSION = '0.1.0';
-export const GITHUB_URL = 'https://gitlab.com/nishantxrana/tooldock';
+export const PORTFOLIO_URL =
+  import.meta.env.VITE_PORTFOLIO_URL ?? 'https://github.com/nishantxrana/portfolio';
 
 /**
  * Relative base path for all Azure DevOps API calls. A same-origin proxy
