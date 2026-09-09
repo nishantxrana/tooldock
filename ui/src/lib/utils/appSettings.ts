@@ -40,7 +40,8 @@ export function parseAppSettingsKeys(text: string): ParsedKey[] {
     if (!line) return;
 
     // A single line may contain multiple "-KEY ..." tokens (one-line format).
-    const dashMatches = line.match(/-([A-Za-z_][A-Za-z0-9_.-]*)/g);
+    // Colons are valid in Azure App Service key names (hierarchy separator on Windows).
+    const dashMatches = line.match(/-([A-Za-z_][A-Za-z0-9_.:-]*)/g);
     if (dashMatches && line.startsWith('-')) {
       for (const m of dashMatches) {
         result.push({ key: m.slice(1), line: idx + 1 });
@@ -52,7 +53,7 @@ export function parseAppSettingsKeys(text: string): ParsedKey[] {
     const eq = line.indexOf('=');
     if (eq > 0) {
       const key = line.slice(0, eq).trim();
-      if (/^[A-Za-z_][A-Za-z0-9_.-]*$/.test(key)) {
+      if (/^[A-Za-z_][A-Za-z0-9_.:-]*$/.test(key)) {
         result.push({ key, line: idx + 1 });
         return;
       }
@@ -60,7 +61,7 @@ export function parseAppSettingsKeys(text: string): ParsedKey[] {
 
     // Bare KEY (possibly "KEY value")
     const bare = line.split(/\s+/)[0];
-    if (bare && /^[A-Za-z_][A-Za-z0-9_.-]*$/.test(bare)) {
+    if (bare && /^[A-Za-z_][A-Za-z0-9_.:-]*$/.test(bare)) {
       result.push({ key: bare, line: idx + 1 });
     }
   });

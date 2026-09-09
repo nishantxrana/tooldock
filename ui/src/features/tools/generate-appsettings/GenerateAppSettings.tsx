@@ -20,7 +20,7 @@ import type { VariableGroup } from '@/types/ado';
  */
 export function GenerateAppSettings() {
   const [group, setGroup] = useState<VariableGroup | null>(null);
-  const [oneLine, setOneLine] = useState(false);
+  const [oneLine, setOneLine] = useState(true);
 
   const keys = useMemo(() => (group ? variableNames(group) : []), [group]);
   const format: AppSettingsFormat = oneLine ? 'oneline' : 'multiline';
