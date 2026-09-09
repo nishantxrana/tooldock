@@ -6,7 +6,6 @@ import { PageLayout } from '@/components/common/PageLayout';
 import { SectionCard } from '@/components/common/SectionCard';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
-import { LoadingOverlay } from '@/components/common/LoadingOverlay';
 import { ErrorBanner } from '@/components/common/ErrorBanner';
 import { VariableGroupPicker } from '@/components/common/VariableGroupPicker';
 import { RequireProject } from '@/components/common/RequireProject';
@@ -14,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { CsvDropzone } from './CsvDropzone';
-import { ImportPreviewTable } from './ImportPreviewTable';
+import { ImportPreviewTable, ImportPreviewTableWithControls } from './ImportPreviewTable';
 import { buildImportPlan } from './importDiff';
 import { parseKeyValueCsv } from '@/lib/utils/csv';
 import { useUpdateVariableGroup } from '@/lib/hooks/useUpdateVariableGroup';
@@ -56,13 +55,19 @@ export function CsvImport() {
       {
         onSuccess: (updated) => {
           setConfirmOpen(false);
-          setGroup(updated); // refresh local copy so the diff reflects the new state
+          setGroup(updated);
           reset();
-          toast.success(`Imported ${parsed?.rows.length ?? 0} variables into "${updated.name}"`);
+          // Report only the changes, not the total CSV row count.
+          const parts = [
+            plan.counts.new > 0 && `${plan.counts.new} added`,
+            plan.counts.overwrite > 0 && `${plan.counts.overwrite} updated`,
+          ].filter(Boolean);
+          toast.success(
+            `Imported into "${updated.name}" — ${parts.length > 0 ? parts.join(', ') : 'no changes'}`,
+          );
         },
         onError: (err) => {
           setConfirmOpen(false);
-          // A denied write is a scope problem, not a bad token — title it clearly.
           const scopeDenied =
             err instanceof AdoError && (err.kind === 'unauthorized' || err.kind === 'forbidden');
           toast.error(scopeDenied ? 'Insufficient PAT scope' : errorTitle(err), {
@@ -73,9 +78,14 @@ export function CsvImport() {
     );
   };
 
+  // Only changed rows shown in the confirm dialog — same rows are noise there.
+  const dialogRows = useMemo(
+    () => (plan ? plan.rows.filter((r) => r.status !== 'same') : []),
+    [plan],
+  );
+
   return (
     <RequireProject>
-      {mutation.isPending && <LoadingOverlay message="Updating variable group…" />}
       <PageLayout
         title="CSV Import"
         description="Import Key,Value pairs into a variable group. You review every change before anything is written."
@@ -97,7 +107,12 @@ export function CsvImport() {
           {csvText ? (
             <div className="flex items-center justify-between rounded-md border bg-muted/30 px-4 py-3">
               <span className="font-mono text-sm">{csvName || 'pasted.csv'}</span>
-              <Badge variant="secondary">{parsed?.rows.length ?? 0} rows</Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">{parsed?.rows.length ?? 0} rows</Badge>
+                <Button variant="ghost" size="sm" onClick={reset}>
+                  Change file
+                </Button>
+              </div>
             </div>
           ) : (
             <CsvDropzone
@@ -142,7 +157,6 @@ export function CsvImport() {
                   {writeDenied ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        {/* span wrapper so the tooltip works on a disabled button */}
                         <span tabIndex={0}>
                           <Button size="sm" disabled>
                             <Upload />
@@ -152,7 +166,7 @@ export function CsvImport() {
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
                         Your PAT can read but not write variable groups. Reconnect with a PAT that
-                        has the “Variable Groups (Read, create, &amp; manage)” scope to import.
+                        has the "Variable Groups (Read, create, &amp; manage)" scope to import.
                       </TooltipContent>
                     </Tooltip>
                   ) : (
@@ -170,7 +184,7 @@ export function CsvImport() {
                   scope. You can still preview changes below.
                 </Callout>
               )}
-              <ImportPreviewTable rows={plan.rows} />
+              <ImportPreviewTableWithControls rows={plan.rows} />
             </SectionCard>
           )
         ) : (
@@ -186,10 +200,11 @@ export function CsvImport() {
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         title={`Import into "${group?.name}"?`}
-        description="Review the changes below. This writes to Azure DevOps and cannot be undone from ToolDock."
-        confirmLabel={`Yes, import ${parsed?.rows.length ?? 0} variables`}
+        description="This writes to Azure DevOps and cannot be undone from ToolDock."
+        confirmLabel={`Yes, import`}
         destructive={(plan?.counts.overwrite ?? 0) > 0}
         confirmDisabled={mutation.isPending}
+        confirmLoading={mutation.isPending}
         onConfirm={runImport}
       >
         {plan && (
@@ -205,7 +220,8 @@ export function CsvImport() {
               <Badge variant="success">{plan.counts.new} new</Badge>
               <Badge variant="secondary">{plan.counts.same} unchanged</Badge>
             </div>
-            <ImportPreviewTable rows={plan.rows} />
+            {/* Only show changed rows in the dialog — same rows add noise here. */}
+            {dialogRows.length > 0 && <ImportPreviewTable rows={dialogRows} />}
           </div>
         )}
       </ConfirmDialog>

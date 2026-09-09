@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -20,6 +21,7 @@ interface ConfirmDialogProps {
   cancelLabel?: string;
   destructive?: boolean;
   confirmDisabled?: boolean;
+  confirmLoading?: boolean;
   onConfirm: () => void;
 }
 
@@ -37,10 +39,11 @@ export function ConfirmDialog({
   cancelLabel = 'Cancel',
   destructive = false,
   confirmDisabled = false,
+  confirmLoading = false,
   onConfirm,
 }: ConfirmDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(v) => { if (!confirmLoading) onOpenChange(v); }}>
       <DialogContent className="max-w-2xl overflow-hidden">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
@@ -48,14 +51,15 @@ export function ConfirmDialog({
         </DialogHeader>
         {children}
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={confirmLoading}>
             {cancelLabel}
           </Button>
           <Button
             variant={destructive ? 'destructive' : 'default'}
-            disabled={confirmDisabled}
+            disabled={confirmDisabled || confirmLoading}
             onClick={onConfirm}
           >
+            {confirmLoading && <Loader2 className="animate-spin" />}
             {confirmLabel}
           </Button>
         </DialogFooter>
