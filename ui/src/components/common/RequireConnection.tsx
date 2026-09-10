@@ -3,10 +3,12 @@ import { Navigate, useNavigationType } from 'react-router-dom';
 import { useSessionStore } from '@/store/sessionStore';
 import { ConnectForm } from '@/features/connection/ConnectForm';
 
-function ConnectGate({ toolTitle }: { toolTitle: string }) {
+function ConnectGate() {
   return (
-    <div className="mx-auto w-full max-w-md px-6 py-16">
-      <ConnectForm title={`Connect to use ${toolTitle}`} onConnected={() => {}} />
+    <div className="flex min-h-[calc(100vh-7rem)] items-start justify-center px-6 pt-[14vh] pb-24">
+      <div className="w-full max-w-sm">
+        <ConnectForm onConnected={() => {}} />
+      </div>
     </div>
   );
 }
@@ -23,19 +25,13 @@ function ConnectGate({ toolTitle }: { toolTitle: string }) {
  *   Once `connect()` flips isConnected, this re-renders and shows `children`
  *   automatically — onConnected has nothing else to do.
  */
-export function RequireConnection({
-  toolTitle,
-  children,
-}: {
-  toolTitle: string;
-  children: ReactNode;
-}) {
+export function RequireConnection({ children }: { children: ReactNode }) {
   const isConnected = useSessionStore((s) => s.isConnected);
   const navigationType = useNavigationType();
 
   if (!isConnected) {
     if (navigationType === 'POP') return <Navigate to="/" replace />;
-    return <ConnectGate toolTitle={toolTitle} />;
+    return <ConnectGate />;
   }
 
   return <>{children}</>;
