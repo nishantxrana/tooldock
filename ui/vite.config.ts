@@ -17,6 +17,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // ExcelJS's main entry uses Node.js APIs (fs, stream, etc.) that don't
+      // exist in the browser. Its pre-built browser bundle is safe to use.
+      exceljs: path.resolve(__dirname, 'node_modules/exceljs/dist/exceljs.min.js'),
     },
   },
   server: {

@@ -1,13 +1,14 @@
+import type * as ExcelJS from 'exceljs';
+
 /** Characters Excel forbids in a sheet name. */
 const INVALID_SHEET_CHARS = /[:\\/?*[\]]/g;
 
 /**
  * The OOXML/xlsx spec caps sheet names at 31 chars. This isn't just an Excel
- * UI restriction — the `xlsx` writer itself throws if given a longer name, so
- * this can't be raised without switching libraries. The full, untruncated
- * name is never actually lost though: it's written into the sheet content
- * itself (see buildKeyValueSheet) and it's also what the downloaded filename
- * is built from.
+ * UI restriction — the writer itself throws if given a longer name, so this
+ * can't be raised without switching libraries. The full, untruncated name is
+ * never actually lost though: it's written into the sheet content itself (see
+ * buildKeyValueSheet) and it's also what the downloaded filename is built from.
  */
 export function safeSheetName(label: string): string {
   const cleaned = label.replace(INVALID_SHEET_CHARS, ' ').trim().slice(0, 31);
@@ -16,10 +17,9 @@ export function safeSheetName(label: string): string {
 
 /**
  * Sheet name for one sheet of a multi-group export: a zero-padded ordinal
- * prefix (width matches the total sheet count, e.g. "01 - ", "02 - " for
- * 10-99 sheets) followed by as much of the sanitized name as fits in 31
- * chars. The prefix alone guarantees uniqueness, so no collision/dedupe
- * logic is needed even if two group names happened to be identical.
+ * prefix (width matches the total sheet count) followed by as much of the
+ * sanitized name as fits in 31 chars. The prefix alone guarantees uniqueness,
+ * so no collision/dedupe logic is needed even if two group names are identical.
  */
 export function indexedSheetName(index: number, total: number, label: string): string {
   const width = String(total).length;
@@ -34,32 +34,75 @@ export interface XlsxRow {
   value: string;
 }
 
-const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+const NAVY: ExcelJS.Fill = {
+  type: 'pattern',
+  pattern: 'solid',
+  fgColor: { argb: 'FF0b5394' },
+};
 
-/**
- * Build a Key/Value sheet with the full (untruncated) source name as a merged
- * title row above the table, so the tab-name length limit never loses
- * information — only where it's displayed.
- */
-function buildKeyValueSheet(XLSX: typeof import('xlsx'), fullName: string, rows: XlsxRow[]) {
-  const sheetData = [
-    [`Variable Group Name = ${fullName}`],
-    ['Key', 'Value'],
-    ...rows.map((r) => [r.key, r.value]),
-  ];
-  const sheet = XLSX.utils.aoa_to_sheet(sheetData);
-  sheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
-  return sheet;
+const THIN_BLACK: Partial<ExcelJS.Border> = { style: 'thin', color: { argb: 'FF000000' } };
+
+const ALL_BORDERS: Partial<ExcelJS.Borders> = {
+  top: THIN_BLACK,
+  left: THIN_BLACK,
+  bottom: THIN_BLACK,
+  right: THIN_BLACK,
+};
+
+/** Apply the standard Key/Value sheet formatting to a worksheet. */
+function formatKeyValueSheet(ws: ExcelJS.Worksheet, fullName: string, rows: XlsxRow[]) {
+  // --- Title row (row 1) ---
+  ws.mergeCells('A1:B1');
+  const titleCell = ws.getCell('A1');
+  titleCell.value = `Variable Group Name = ${fullName}`;
+  titleCell.fill = NAVY;
+  titleCell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+  titleCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: false };
+  titleCell.border = ALL_BORDERS;
+  ws.getRow(1).height = 20;
+
+  // --- Header row (row 2) ---
+  const headerRow = ws.getRow(2);
+  headerRow.height = 18;
+  (['Key', 'Value'] as const).forEach((label, ci) => {
+    const cell = ws.getCell(2, ci + 1);
+    cell.value = label;
+    cell.fill = NAVY;
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: false };
+    cell.border = ALL_BORDERS;
+  });
+
+  // --- Data rows (rows 3+) ---
+  rows.forEach((r, i) => {
+    const rowIdx = i + 3;
+    const kCell = ws.getCell(rowIdx, 1);
+    const vCell = ws.getCell(rowIdx, 2);
+    kCell.value = r.key;
+    vCell.value = r.value;
+    for (const cell of [kCell, vCell]) {
+      cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+      cell.border = ALL_BORDERS;
+    }
+  });
+
+  // --- Column widths ---
+  // Col A: widest key + 2 padding chars (min 10, max 60)
+  const longestKey = rows.reduce((max, r) => Math.max(max, r.key.length), 3);
+  ws.getColumn(1).width = Math.min(Math.max(longestKey + 2, 10), 60);
+  // Col B: 770px ÷ 7 ≈ 110 chars
+  ws.getColumn(2).width = 110;
 }
 
-/** Serialize a workbook and trigger its download as a .xlsx file. */
-function downloadWorkbook(
-  XLSX: typeof import('xlsx'),
-  workbook: ReturnType<(typeof import('xlsx'))['utils']['book_new']>,
+/** Serialize the workbook to an ArrayBuffer and trigger download. */
+async function downloadWorkbook(
+  workbook: ExcelJS.Workbook,
   filename: string,
-): void {
-  const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' }) as ArrayBuffer;
-  const blob = new Blob([buffer], { type: XLSX_MIME });
+): Promise<void> {
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -71,31 +114,24 @@ function downloadWorkbook(
 }
 
 /**
- * Build a single-sheet Key/Value workbook and trigger its download. The
- * `xlsx` library (~700KB) is dynamically imported here so it only loads when
- * a user actually exports to XLSX, instead of bloating the main bundle for
- * everyone.
+ * Build a single-sheet Key/Value workbook and trigger its download. ExcelJS
+ * is dynamically imported so it only loads when a user actually exports —
+ * it doesn't bloat the main bundle.
  */
 export async function exportKeyValueXlsx(
   filename: string,
   sheetName: string,
   rows: XlsxRow[],
-  options: { titleRow?: boolean } = {},
+  _options: { titleRow?: boolean } = {},
 ): Promise<void> {
-  const { titleRow = true } = options;
-  const XLSX = await import('xlsx');
-
-  let sheet;
-  if (titleRow) {
-    sheet = buildKeyValueSheet(XLSX, sheetName, rows);
-  } else {
-    const sheetData = [['Key', 'Value'], ...rows.map((r) => [r.key, r.value])];
-    sheet = XLSX.utils.aoa_to_sheet(sheetData);
-  }
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, sheet, safeSheetName(sheetName));
-
-  downloadWorkbook(XLSX, workbook, filename);
+  const mod = await import('exceljs');
+  // The browser bundle (exceljs.min.js) is UMD — Workbook may be on .default
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { Workbook } = ((mod as any).default ?? mod) as typeof import('exceljs');
+  const workbook = new Workbook();
+  const ws = workbook.addWorksheet(safeSheetName(sheetName));
+  formatKeyValueSheet(ws, sheetName, rows);
+  await downloadWorkbook(workbook, filename);
 }
 
 export interface ReleaseMappingRow {
@@ -105,29 +141,62 @@ export interface ReleaseMappingRow {
   scope: string;
 }
 
-/**
- * Build and download a single-sheet release pipeline mapping workbook.
- * Columns: Variable Group | Pipeline Name | Stage | Scope
- * Title row merges across all 4 columns.
- */
+const RELEASE_HEADERS = ['Variable Group', 'Pipeline Name', 'Stage', 'Scope'] as const;
+
+/** Build and download a single-sheet release pipeline mapping workbook. */
 export async function exportReleaseMappingXlsx(
   filename: string,
   title: string,
   rows: ReleaseMappingRow[],
 ): Promise<void> {
-  const XLSX = await import('xlsx');
+  const mod = await import('exceljs');
+  // The browser bundle (exceljs.min.js) is UMD — Workbook may be on .default
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { Workbook } = ((mod as any).default ?? mod) as typeof import('exceljs');
+  const workbook = new Workbook();
+  const ws = workbook.addWorksheet('Pipeline Mapping');
 
-  const sheetData = [
-    [title, '', '', ''],
-    ['Variable Group', 'Pipeline Name', 'Stage', 'Scope'],
-    ...rows.map((r) => [r.groupName, r.pipelineName, r.stageName, r.scope]),
-  ];
-  const sheet = XLSX.utils.aoa_to_sheet(sheetData);
-  sheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }];
+  // Title row — merge across 4 columns
+  ws.mergeCells('A1:D1');
+  const titleCell = ws.getCell('A1');
+  titleCell.value = title;
+  titleCell.fill = NAVY;
+  titleCell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+  titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+  titleCell.border = ALL_BORDERS;
+  ws.getRow(1).height = 20;
 
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, sheet, 'Pipeline Mapping');
-  downloadWorkbook(XLSX, workbook, filename);
+  // Header row
+  RELEASE_HEADERS.forEach((label, ci) => {
+    const cell = ws.getCell(2, ci + 1);
+    cell.value = label;
+    cell.fill = NAVY;
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    cell.border = ALL_BORDERS;
+  });
+  ws.getRow(2).height = 18;
+
+  // Data rows
+  rows.forEach((r, i) => {
+    const rowIdx = i + 3;
+    const values = [r.groupName, r.pipelineName, r.stageName, r.scope];
+    values.forEach((val, ci) => {
+      const cell = ws.getCell(rowIdx, ci + 1);
+      cell.value = val;
+      cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+      cell.border = ALL_BORDERS;
+    });
+  });
+
+  // Auto-width for all 4 columns
+  const colKeys: (keyof ReleaseMappingRow)[] = ['groupName', 'pipelineName', 'stageName', 'scope'];
+  colKeys.forEach((key, ci) => {
+    const longest = rows.reduce((max, r) => Math.max(max, r[key].length), RELEASE_HEADERS[ci]?.length ?? 10);
+    ws.getColumn(ci + 1).width = Math.min(longest + 2, 60);
+  });
+
+  await downloadWorkbook(workbook, filename);
 }
 
 export interface XlsxSheetInput {
@@ -137,21 +206,24 @@ export interface XlsxSheetInput {
 
 /**
  * Build a multi-sheet workbook, one sheet per variable group, and trigger its
- * download. Sheet tabs get an ordinal prefix (see indexedSheetName) so
- * multiple groups never collide once truncated to Excel's 31-char limit.
+ * download. Sheet tabs get an ordinal prefix so multiple groups never collide
+ * once truncated to Excel's 31-char limit.
  */
 export async function exportVariableGroupWorkbook(
   filename: string,
   sheets: XlsxSheetInput[],
 ): Promise<void> {
-  const XLSX = await import('xlsx');
+  const mod = await import('exceljs');
+  // The browser bundle (exceljs.min.js) is UMD — Workbook may be on .default
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { Workbook } = ((mod as any).default ?? mod) as typeof import('exceljs');
+  const workbook = new Workbook();
 
-  const workbook = XLSX.utils.book_new();
   sheets.forEach((s, i) => {
-    const sheet = buildKeyValueSheet(XLSX, s.name, s.rows);
     const tabName = indexedSheetName(i + 1, sheets.length, s.name);
-    XLSX.utils.book_append_sheet(workbook, sheet, tabName);
+    const ws = workbook.addWorksheet(tabName);
+    formatKeyValueSheet(ws, s.name, s.rows);
   });
 
-  downloadWorkbook(XLSX, workbook, filename);
+  await downloadWorkbook(workbook, filename);
 }
