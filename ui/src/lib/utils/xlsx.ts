@@ -227,3 +227,106 @@ export async function exportVariableGroupWorkbook(
 
   await downloadWorkbook(workbook, filename);
 }
+
+// ---------------------------------------------------------------------------
+// Variable Group Diff export
+// ---------------------------------------------------------------------------
+
+import type { DiffRow, DiffStatus } from './groupDiff';
+
+const DIFF_STATUS_LABELS: Record<DiffStatus, string> = {
+  identical: 'Identical',
+  changed: 'Changed',
+  'left-only': 'Left only',
+  'right-only': 'Right only',
+  'both-secret': 'Both secret',
+};
+
+/** ARGB fill colours per diff status (subtle, print-friendly). */
+const DIFF_FILL: Record<DiffStatus, string | null> = {
+  identical: null,
+  changed: 'FFFFF3CD',
+  'left-only': 'FFCCE5FF',
+  'right-only': 'FFE8CCFF',
+  'both-secret': 'FFF2F2F2',
+};
+
+function applyDiffCellBase(cell: ExcelJS.Cell, fill: string | null) {
+  if (fill) {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } };
+  }
+  cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+  cell.border = ALL_BORDERS;
+}
+
+export async function exportDiffXlsx(
+  filename: string,
+  leftName: string,
+  rightName: string,
+  rows: DiffRow[],
+): Promise<void> {
+  const mod = await import('exceljs');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { Workbook } = ((mod as any).default ?? mod) as typeof import('exceljs');
+  const workbook = new Workbook();
+  const ws = workbook.addWorksheet('Diff');
+
+  // Title row (merge A1:D1)
+  ws.mergeCells('A1:D1');
+  const titleCell = ws.getCell('A1');
+  titleCell.value = `Variable Group Diff — ${leftName}  vs  ${rightName}`;
+  titleCell.fill = NAVY;
+  titleCell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+  titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+  titleCell.border = ALL_BORDERS;
+  ws.getRow(1).height = 22;
+
+  // Header row
+  const headers = ['Key', leftName, rightName, 'Status'];
+  headers.forEach((label, ci) => {
+    const cell = ws.getCell(2, ci + 1);
+    cell.value = label;
+    cell.fill = NAVY;
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    cell.border = ALL_BORDERS;
+  });
+  ws.getRow(2).height = 18;
+
+  // Data rows
+  rows.forEach((r, i) => {
+    const rowIdx = i + 3;
+    const fill = DIFF_FILL[r.status];
+
+    const keyCell = ws.getCell(rowIdx, 1);
+    keyCell.value = r.key;
+    keyCell.font = { name: 'Consolas', size: 10 };
+    applyDiffCellBase(keyCell, fill);
+
+    const leftCell = ws.getCell(rowIdx, 2);
+    leftCell.value =
+      r.status === 'right-only' ? '' : r.leftSecret ? '[secret]' : (r.leftValue ?? '');
+    if (r.leftSecret) leftCell.font = { italic: true, color: { argb: 'FF888888' }, size: 10 };
+    applyDiffCellBase(leftCell, fill);
+
+    const rightCell = ws.getCell(rowIdx, 3);
+    rightCell.value =
+      r.status === 'left-only' ? '' : r.rightSecret ? '[secret]' : (r.rightValue ?? '');
+    if (r.rightSecret) rightCell.font = { italic: true, color: { argb: 'FF888888' }, size: 10 };
+    applyDiffCellBase(rightCell, fill);
+
+    const statusCell = ws.getCell(rowIdx, 4);
+    statusCell.value = DIFF_STATUS_LABELS[r.status];
+    statusCell.alignment = { horizontal: 'center', vertical: 'middle' };
+    applyDiffCellBase(statusCell, fill);
+  });
+
+  // Column widths
+  const longestKey = rows.reduce((m, r) => Math.max(m, r.key.length), 3);
+  ws.getColumn(1).width = Math.min(longestKey + 2, 50);
+  ws.getColumn(2).width = 60;
+  ws.getColumn(3).width = 60;
+  ws.getColumn(4).width = 14;
+
+  await downloadWorkbook(workbook, filename);
+}

@@ -1,6 +1,7 @@
 import {
   ArrowDownAZ,
   CopyCheck,
+  Diff,
   Download,
   FileSpreadsheet,
   GitBranch,
@@ -18,6 +19,7 @@ import { ReleaseGroupMapping } from './release-group-mapping/ReleaseGroupMapping
 import { ExportReleaseVars } from './export-release-vars/ExportReleaseVars';
 import { DuplicateFinder } from './duplicate-finder/DuplicateFinder';
 import { SortAppSettings } from './sort-appsettings/SortAppSettings';
+import { VariableGroupDiff } from './variable-group-diff/VariableGroupDiff';
 
 /**
  * The single source of truth for tools. The sidebar and routes are generated
@@ -43,6 +45,16 @@ export const TOOLS: readonly ToolDefinition[] = [
     group: 'Variable Groups',
     path: '/tools/compare-appsettings',
     component: CompareAppSettings,
+    requiresConnection: true,
+  },
+  {
+    id: 'variable-group-diff',
+    title: 'Variable Group Diff',
+    description: 'Compare two variable groups key by key — spot changed, missing, and secret values.',
+    icon: Diff,
+    group: 'Variable Groups',
+    path: '/tools/variable-group-diff',
+    component: VariableGroupDiff,
     requiresConnection: true,
   },
   {
