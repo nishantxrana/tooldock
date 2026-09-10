@@ -6,27 +6,28 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 32% 14%;
+    /* GitHub Light — canvas */
+    --background: 0 0% 100%;              /* #ffffff */
+    --foreground: 213 13% 14%;            /* #1f2328 */
 
     --card: 0 0% 100%;
-    --card-foreground: 222 32% 14%;
+    --card-foreground: 213 13% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 32% 14%;
+    --popover-foreground: 213 13% 14%;
 
-    /* Azure blue */
-    --primary: 206 100% 42%;
+    /* GitHub Light blue #0969da */
+    --primary: 212 92% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 20% 96%;
-    --secondary-foreground: 222 32% 20%;
+    --secondary: 210 17% 97%;             /* #f6f8fa */
+    --secondary-foreground: 213 13% 14%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 210 17% 97%;                 /* #f6f8fa */
+    --muted-foreground: 212 9% 43%;       /* #636c76 */
 
-    --accent: 206 90% 95%;
-    --accent-foreground: 206 100% 30%;
+    --accent: 212 92% 94%;               /* very light blue hover tint */
+    --accent-foreground: 212 92% 30%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -37,45 +38,43 @@
     --warning: 38 92% 45%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 214 20% 90%;
-    --input: 214 20% 88%;
-    --ring: 206 100% 42%;
+    --border: 210 18% 82%;               /* #d0d7de */
+    --input: 210 18% 82%;
+    --ring: 212 92% 45%;
 
-    /* Sidebar surface — distinct from white page */
-    --sidebar: 220 20% 97%;
-    --sidebar-foreground: 222 32% 14%;
-    --sidebar-border: 214 20% 88%;
+    --sidebar: 210 17% 97%;              /* #f6f8fa */
+    --sidebar-foreground: 213 13% 14%;
+    --sidebar-border: 210 18% 82%;       /* #d0d7de */
 
-    /* Code/pre block background */
-    --code-bg: 220 14% 96%;
-
-    /* Card shadow */
+    --code-bg: 210 17% 97%;              /* #f6f8fa */
     --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.05);
 
     --radius: 0.625rem;
   }
 
   .dark {
-    --background: 224 28% 8%;
-    --foreground: 210 20% 92%;
+    /* GitHub Dark — canvas */
+    --background: 216 28% 7%;            /* #0d1117 */
+    --foreground: 208 35% 93%;           /* #e6edf3 */
 
-    --card: 222 26% 11%;
-    --card-foreground: 210 20% 92%;
+    --card: 215 21% 11%;                 /* #161b22 */
+    --card-foreground: 208 35% 93%;
 
-    --popover: 222 26% 11%;
-    --popover-foreground: 210 20% 92%;
+    --popover: 215 21% 11%;              /* #161b22 */
+    --popover-foreground: 208 35% 93%;
 
-    --primary: 206 100% 55%;
-    --primary-foreground: 222 40% 8%;
+    /* GitHub Dark blue #4491e9 */
+    --primary: 212 79% 59%;
+    --primary-foreground: 218 80% 2%;    /* near #010409 — dark text on blue */
 
-    --secondary: 217 22% 18%;
-    --secondary-foreground: 210 20% 92%;
+    --secondary: 218 17% 18%;            /* #262c36 */
+    --secondary-foreground: 208 35% 93%;
 
-    --muted: 217 22% 18%;
-    --muted-foreground: 215 16% 62%;
+    --muted: 218 17% 18%;                /* #262c36 */
+    --muted-foreground: 214 8% 60%;      /* #9198a1 */
 
-    --accent: 217 30% 22%;
-    --accent-foreground: 206 100% 75%;
+    --accent: 218 17% 22%;              /* slightly lighter than muted */
+    --accent-foreground: 212 79% 75%;
 
     --destructive: 0 63% 45%;
     --destructive-foreground: 0 0% 100%;
@@ -84,19 +83,19 @@
     --success-foreground: 0 0% 100%;
 
     --warning: 38 90% 55%;
-    --warning-foreground: 222 40% 8%;
+    --warning-foreground: 218 80% 2%;
 
-    --border: 217 22% 18%;
-    --input: 217 22% 24%;
-    --ring: 206 100% 55%;
+    --border: 212 12% 21%;               /* #30363d */
+    --input: 212 12% 21%;
+    --ring: 212 79% 59%;
 
-    /* Sidebar — darker than bg, key layering move */
-    --sidebar: 222 30% 7%;
-    --sidebar-foreground: 210 20% 88%;
-    --sidebar-border: 217 22% 16%;
+    /* GitHub Dark sidebar #010409 — deepest black */
+    --sidebar: 218 80% 2%;               /* #010409 */
+    --sidebar-foreground: 208 35% 93%;
+    --sidebar-border: 215 15% 15%;       /* #21262d */
 
-    --code-bg: 222 28% 9%;
-    --shadow-card: 0 1px 4px 0 rgb(0 0 0 / 0.3);
+    --code-bg: 215 21% 11%;              /* #161b22 */
+    --shadow-card: 0 1px 4px 0 rgb(0 0 0 / 0.4);
   }
 }
 
