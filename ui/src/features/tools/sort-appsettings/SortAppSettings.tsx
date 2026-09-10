@@ -40,14 +40,14 @@ export function SortAppSettings() {
       <div className="grid gap-6 lg:grid-cols-2">
         <SectionCard
           title="Input"
-          actions={
-            <Badge variant="secondary">{sortedKeys.length} vars</Badge>
-          }
+          actions={<Badge variant="secondary">{sortedKeys.length} vars</Badge>}
         >
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={'-NODE_ENV "$(NODE_ENV)" -JWT_SECRET "$(JWT_SECRET)" -API_URL "$(API_URL)"'}
+            placeholder={
+              '-NODE_ENV "$(NODE_ENV)" -JWT_SECRET "$(JWT_SECRET)" -API_URL "$(API_URL)"'
+            }
             className="min-h-[360px]"
             autoFocus
           />

@@ -305,11 +305,9 @@ export function VariableGroupDiff() {
   return (
     <RequireProject>
       <div className="flex h-full flex-col overflow-hidden">
-
         {/* ── Top bar ─────────────────────────────────────────── */}
         <div className="shrink-0 border-b border-border bg-background">
           <div className="mx-auto w-full max-w-6xl space-y-3 px-6 py-4">
-
             {/* Title */}
             <div className="flex items-center gap-2.5">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary ring-1 ring-primary/20">
@@ -317,7 +315,9 @@ export function VariableGroupDiff() {
               </span>
               <div>
                 <h1 className="text-sm font-semibold tracking-tight">Variable Group Diff</h1>
-                <p className="text-xs text-muted-foreground/70">Compare two variable groups key by key</p>
+                <p className="text-xs text-muted-foreground/70">
+                  Compare two variable groups key by key
+                </p>
               </div>
             </div>
 
@@ -383,20 +383,18 @@ export function VariableGroupDiff() {
 
                 {/* Clickable status filter chips */}
                 {(
-                  [
-                    'identical',
-                    'changed',
-                    'left-only',
-                    'right-only',
-                    'both-secret',
-                  ] as DiffStatus[]
+                  ['identical', 'changed', 'left-only', 'right-only', 'both-secret'] as DiffStatus[]
                 ).map((s) => {
                   const count =
-                    s === 'identical' ? result.counts.identical
-                    : s === 'changed' ? result.counts.changed
-                    : s === 'left-only' ? result.counts.leftOnly
-                    : s === 'right-only' ? result.counts.rightOnly
-                    : result.counts.bothSecret;
+                    s === 'identical'
+                      ? result.counts.identical
+                      : s === 'changed'
+                        ? result.counts.changed
+                        : s === 'left-only'
+                          ? result.counts.leftOnly
+                          : s === 'right-only'
+                            ? result.counts.rightOnly
+                            : result.counts.bothSecret;
                   return (
                     <StatusChip
                       key={s}
@@ -454,17 +452,17 @@ export function VariableGroupDiff() {
                       : `${filteredRows.length} of ${result.counts.total} keys`}
                   </span>
                   <span className="h-3 w-px bg-border/50" />
-                  {(
-                    [
-                      { status: 'identical' as DiffStatus, desc: 'Same value' },
-                      { status: 'changed' as DiffStatus, desc: 'Value differs' },
-                      { status: 'left-only' as DiffStatus, desc: 'Missing from right' },
-                      { status: 'right-only' as DiffStatus, desc: 'Missing from left' },
-                      { status: 'both-secret' as DiffStatus, desc: 'Both secret' },
-                    ]
-                  ).map(({ status, desc }) => (
+                  {[
+                    { status: 'identical' as DiffStatus, desc: 'Same value' },
+                    { status: 'changed' as DiffStatus, desc: 'Value differs' },
+                    { status: 'left-only' as DiffStatus, desc: 'Missing from right' },
+                    { status: 'right-only' as DiffStatus, desc: 'Missing from left' },
+                    { status: 'both-secret' as DiffStatus, desc: 'Both secret' },
+                  ].map(({ status, desc }) => (
                     <span key={status} className="flex items-center gap-1.5">
-                      <span className={cn('h-1.5 w-1.5 rounded-full shrink-0', STATUS_DOT[status])} />
+                      <span
+                        className={cn('h-1.5 w-1.5 rounded-full shrink-0', STATUS_DOT[status])}
+                      />
                       <span className="text-muted-foreground/70">{STATUS_LABEL[status]}</span>
                       <span className="text-muted-foreground/40">·</span>
                       <span>{desc}</span>

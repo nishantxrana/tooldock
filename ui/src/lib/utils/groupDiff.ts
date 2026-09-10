@@ -4,7 +4,7 @@ export type DiffStatus = 'identical' | 'changed' | 'left-only' | 'right-only' | 
 
 export interface DiffRow {
   key: string;
-  leftValue: string | null;  // null = secret
+  leftValue: string | null; // null = secret
   rightValue: string | null; // null = secret
   leftSecret: boolean;
   rightSecret: boolean;
@@ -35,9 +35,9 @@ export interface DiffResult {
  * - Right-only  : key only in right group
  */
 export function diffGroups(left: VariableMap, right: VariableMap): DiffResult {
-  const allKeys = [
-    ...new Set([...Object.keys(left), ...Object.keys(right)]),
-  ].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+  const allKeys = [...new Set([...Object.keys(left), ...Object.keys(right)])].sort((a, b) =>
+    a.localeCompare(b, undefined, { sensitivity: 'base' }),
+  );
 
   const rows: DiffRow[] = allKeys.map((key) => {
     const lv = left[key];

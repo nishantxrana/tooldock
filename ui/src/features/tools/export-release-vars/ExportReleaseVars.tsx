@@ -57,7 +57,7 @@ function extractVars(def: ReleaseDefinition, scopeId: string): KV[] {
   const source =
     scopeId === DEFINITION_SCOPE
       ? def.variables
-      : def.environments.find((e) => String(e.id) === scopeId)?.variables ?? {};
+      : (def.environments.find((e) => String(e.id) === scopeId)?.variables ?? {});
 
   return Object.entries(source ?? {})
     .sort(([a], [b]) => a.localeCompare(b))
@@ -120,8 +120,7 @@ export function ExportReleaseVars() {
 
   const scopes = useMemo(() => {
     if (!def) return [];
-    const varCount = (vars: Record<string, unknown> | undefined) =>
-      Object.keys(vars ?? {}).length;
+    const varCount = (vars: Record<string, unknown> | undefined) => Object.keys(vars ?? {}).length;
     return [
       {
         id: DEFINITION_SCOPE,
@@ -278,8 +277,8 @@ export function ExportReleaseVars() {
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <FileSpreadsheet className="h-5 w-5" />
                     <span>
-                      <span className="font-medium text-foreground">{exportFilename}.xlsx</span>{' '}
-                      — {vars.length} variable{vars.length === 1 ? '' : 's'}.
+                      <span className="font-medium text-foreground">{exportFilename}.xlsx</span> —{' '}
+                      {vars.length} variable{vars.length === 1 ? '' : 's'}.
                     </span>
                   </div>
                   <Button size="sm" onClick={handleXlsxDownload} disabled={xlsxExporting}>

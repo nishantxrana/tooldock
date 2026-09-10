@@ -43,7 +43,12 @@ export function ConfirmDialog({
   onConfirm,
 }: ConfirmDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!confirmLoading) onOpenChange(v); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!confirmLoading) onOpenChange(v);
+      }}
+    >
       <DialogContent className="max-w-2xl overflow-hidden">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

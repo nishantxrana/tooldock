@@ -126,8 +126,8 @@ export function ExportGroup() {
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <FileSpreadsheet className="h-5 w-5" />
                     <span>
-                      <span className="font-medium text-foreground">{exportFilename}.xlsx</span>{' '}
-                      — sheet "{group.name}", {variableCount(group)} variables.
+                      <span className="font-medium text-foreground">{exportFilename}.xlsx</span> —
+                      sheet "{group.name}", {variableCount(group)} variables.
                     </span>
                   </div>
                   <Button size="sm" onClick={handleXlsxDownload} disabled={xlsxExporting}>

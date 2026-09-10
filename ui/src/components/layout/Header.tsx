@@ -26,7 +26,13 @@ export function Header({ onToggleSidebar }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-sidebar-border bg-background/98 px-4 backdrop-blur-md">
-      <Button variant="ghost" size="icon" className="lg:hidden" onClick={onToggleSidebar} aria-label="Toggle sidebar">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="lg:hidden"
+        onClick={onToggleSidebar}
+        aria-label="Toggle sidebar"
+      >
         <PanelLeft />
       </Button>
 

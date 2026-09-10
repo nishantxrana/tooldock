@@ -148,14 +148,19 @@ export function ExportAllGroups() {
                   className="h-7 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 focus-visible:border-0"
                 />
                 {search && (
-                  <button onClick={() => setSearch('')} className="text-muted-foreground hover:text-foreground">
+                  <button
+                    onClick={() => setSearch('')}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
                     <X className="h-3.5 w-3.5" />
                   </button>
                 )}
               </div>
 
               {filtered.length === 0 ? (
-                <p className="px-4 py-6 text-center text-sm text-muted-foreground">No groups match "{search}".</p>
+                <p className="px-4 py-6 text-center text-sm text-muted-foreground">
+                  No groups match "{search}".
+                </p>
               ) : (
                 <ul className="max-h-80 divide-y divide-border overflow-y-auto scrollbar-thin">
                   {filtered.map((g) => (
@@ -197,7 +202,11 @@ export function ExportAllGroups() {
                     </span>
                   )}
                 </div>
-                <Button size="sm" onClick={handleExport} disabled={selected.size === 0 || exporting}>
+                <Button
+                  size="sm"
+                  onClick={handleExport}
+                  disabled={selected.size === 0 || exporting}
+                >
                   {exporting ? <Loader2 className="animate-spin" /> : <Download />}
                   {exporting ? 'Preparing…' : 'Download'}
                 </Button>

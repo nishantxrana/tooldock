@@ -129,7 +129,11 @@ export function CompareAppSettings() {
   const canCompare = groups.length > 0 && pasted.trim().length > 0;
 
   const groupLabel =
-    groups.length === 1 ? (groups[0]?.name ?? '') : groups.length > 1 ? `${groups.length} groups` : '';
+    groups.length === 1
+      ? (groups[0]?.name ?? '')
+      : groups.length > 1
+        ? `${groups.length} groups`
+        : '';
 
   const isHealthy =
     result.counts.missingFromAppSettings === 0 &&
@@ -307,7 +311,11 @@ export function CompareAppSettings() {
                       description: `${variableCount(g)} vars`,
                     }))}
                     onChange={(v) => addGroup(Number(v))}
-                    placeholder={groups.length === 0 ? 'Select a variable group…' : 'Add another variable group…'}
+                    placeholder={
+                      groups.length === 0
+                        ? 'Select a variable group…'
+                        : 'Add another variable group…'
+                    }
                     searchPlaceholder="Search groups…"
                   />
                 ) : (
@@ -335,8 +343,8 @@ export function CompareAppSettings() {
           <Callout variant="warning">
             <div className="space-y-1.5">
               <p className="font-medium">
-                {merged.duplicates.length} key{merged.duplicates.length === 1 ? '' : 's'} appear
-                in multiple groups — the first group's key is used for comparison.
+                {merged.duplicates.length} key{merged.duplicates.length === 1 ? '' : 's'} appear in
+                multiple groups — the first group's key is used for comparison.
               </p>
               <ul className="space-y-0.5 font-mono text-xs">
                 {merged.duplicates.map(({ key, groups: gs }) => (
@@ -355,7 +363,9 @@ export function CompareAppSettings() {
           <>
             {/* Summary bar */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-4 py-2.5 text-sm">
-              <span className={cn('font-semibold', isHealthy ? 'text-success' : 'text-destructive')}>
+              <span
+                className={cn('font-semibold', isHealthy ? 'text-success' : 'text-destructive')}
+              >
                 {isHealthy ? 'All matched' : 'Issues found'}
               </span>
               <span className="h-4 w-px bg-border" />

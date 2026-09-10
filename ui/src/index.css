@@ -7,8 +7,8 @@
 @layer base {
   :root {
     /* GitHub Light — canvas */
-    --background: 0 0% 100%;              /* #ffffff */
-    --foreground: 213 13% 14%;            /* #1f2328 */
+    --background: 0 0% 100%; /* #ffffff */
+    --foreground: 213 13% 14%; /* #1f2328 */
 
     --card: 0 0% 100%;
     --card-foreground: 213 13% 14%;
@@ -20,13 +20,13 @@
     --primary: 212 92% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 17% 97%;             /* #f6f8fa */
+    --secondary: 210 17% 97%; /* #f6f8fa */
     --secondary-foreground: 213 13% 14%;
 
-    --muted: 210 17% 97%;                 /* #f6f8fa */
-    --muted-foreground: 212 9% 43%;       /* #636c76 */
+    --muted: 210 17% 97%; /* #f6f8fa */
+    --muted-foreground: 212 9% 43%; /* #636c76 */
 
-    --accent: 212 92% 94%;               /* very light blue hover tint */
+    --accent: 212 92% 94%; /* very light blue hover tint */
     --accent-foreground: 212 92% 30%;
 
     --destructive: 0 72% 51%;
@@ -38,15 +38,15 @@
     --warning: 38 92% 45%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 210 18% 82%;               /* #d0d7de */
+    --border: 210 18% 82%; /* #d0d7de */
     --input: 210 18% 82%;
     --ring: 212 92% 45%;
 
-    --sidebar: 210 17% 97%;              /* #f6f8fa */
+    --sidebar: 210 17% 97%; /* #f6f8fa */
     --sidebar-foreground: 213 13% 14%;
-    --sidebar-border: 210 18% 82%;       /* #d0d7de */
+    --sidebar-border: 210 18% 82%; /* #d0d7de */
 
-    --code-bg: 210 17% 97%;              /* #f6f8fa */
+    --code-bg: 210 17% 97%; /* #f6f8fa */
     --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.05);
 
     --radius: 0.625rem;
@@ -54,26 +54,26 @@
 
   .dark {
     /* GitHub Dark — canvas */
-    --background: 216 28% 7%;            /* #0d1117 */
-    --foreground: 208 35% 93%;           /* #e6edf3 */
+    --background: 216 28% 7%; /* #0d1117 */
+    --foreground: 208 35% 93%; /* #e6edf3 */
 
-    --card: 215 21% 11%;                 /* #161b22 */
+    --card: 215 21% 11%; /* #161b22 */
     --card-foreground: 208 35% 93%;
 
-    --popover: 215 21% 11%;              /* #161b22 */
+    --popover: 215 21% 11%; /* #161b22 */
     --popover-foreground: 208 35% 93%;
 
     /* GitHub Dark blue #4491e9 */
     --primary: 212 79% 59%;
-    --primary-foreground: 218 80% 2%;    /* near #010409 — dark text on blue */
+    --primary-foreground: 218 80% 2%; /* near #010409 — dark text on blue */
 
-    --secondary: 218 17% 18%;            /* #262c36 */
+    --secondary: 218 17% 18%; /* #262c36 */
     --secondary-foreground: 208 35% 93%;
 
-    --muted: 218 17% 18%;                /* #262c36 */
-    --muted-foreground: 214 8% 60%;      /* #9198a1 */
+    --muted: 218 17% 18%; /* #262c36 */
+    --muted-foreground: 214 8% 60%; /* #9198a1 */
 
-    --accent: 218 17% 22%;              /* slightly lighter than muted */
+    --accent: 218 17% 22%; /* slightly lighter than muted */
     --accent-foreground: 212 79% 75%;
 
     --destructive: 0 63% 45%;
@@ -85,16 +85,16 @@
     --warning: 38 90% 55%;
     --warning-foreground: 218 80% 2%;
 
-    --border: 212 12% 21%;               /* #30363d */
+    --border: 212 12% 21%; /* #30363d */
     --input: 212 12% 21%;
     --ring: 212 79% 59%;
 
     /* GitHub Dark sidebar #010409 — deepest black */
-    --sidebar: 218 80% 2%;               /* #010409 */
+    --sidebar: 218 80% 2%; /* #010409 */
     --sidebar-foreground: 208 35% 93%;
-    --sidebar-border: 215 15% 15%;       /* #21262d */
+    --sidebar-border: 215 15% 15%; /* #21262d */
 
-    --code-bg: 215 21% 11%;              /* #161b22 */
+    --code-bg: 215 21% 11%; /* #161b22 */
     --shadow-card: 0 1px 4px 0 rgb(0 0 0 / 0.4);
   }
 }

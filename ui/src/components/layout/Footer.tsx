@@ -3,7 +3,7 @@ import { PORTFOLIO_URL } from '@/lib/constants';
 export function Footer() {
   return (
     <footer className="flex items-center justify-between border-t border-border/50 bg-background px-6 py-2 text-xs text-muted-foreground/60">
-<a
+      <a
         href={PORTFOLIO_URL}
         target="_blank"
         rel="noreferrer"

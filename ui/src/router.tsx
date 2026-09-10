@@ -17,9 +17,7 @@ export const router = createBrowserRouter([
       ...TOOLS.map((tool) => ({
         path: tool.path.replace(/^\//, ''),
         element: tool.requiresConnection ? (
-          <RequireConnection>
-            {createElement(tool.component)}
-          </RequireConnection>
+          <RequireConnection>{createElement(tool.component)}</RequireConnection>
         ) : (
           createElement(tool.component)
         ),

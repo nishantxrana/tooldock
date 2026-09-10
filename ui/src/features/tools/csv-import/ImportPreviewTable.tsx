@@ -104,7 +104,12 @@ export function ImportPreviewTableWithControls({ rows }: { rows: ImportRow[] }) 
   const [search, setSearch] = useState('');
 
   const counts = useMemo(() => {
-    const c: Record<ImportStatus | 'all', number> = { all: rows.length, overwrite: 0, new: 0, same: 0 };
+    const c: Record<ImportStatus | 'all', number> = {
+      all: rows.length,
+      overwrite: 0,
+      new: 0,
+      same: 0,
+    };
     for (const r of rows) c[r.status]++;
     return c;
   }, [rows]);

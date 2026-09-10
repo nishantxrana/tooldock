@@ -21,14 +21,49 @@ import { toast } from 'sonner';
 // ---------------------------------------------------------------------------
 
 const GROUP_PALETTE = [
-  { dot: 'bg-primary',      text: 'text-primary',      border: 'border-primary/30',      bg: 'bg-primary/8'      },
-  { dot: 'bg-amber-500',    text: 'text-amber-600',    border: 'border-amber-400/40',    bg: 'bg-amber-50/80 dark:bg-amber-950/30'    },
-  { dot: 'bg-emerald-500',  text: 'text-emerald-600',  border: 'border-emerald-400/40',  bg: 'bg-emerald-50/80 dark:bg-emerald-950/30'  },
-  { dot: 'bg-violet-500',   text: 'text-violet-600',   border: 'border-violet-400/40',   bg: 'bg-violet-50/80 dark:bg-violet-950/30'   },
-  { dot: 'bg-rose-500',     text: 'text-rose-600',     border: 'border-rose-400/40',     bg: 'bg-rose-50/80 dark:bg-rose-950/30'     },
-  { dot: 'bg-cyan-500',     text: 'text-cyan-600',     border: 'border-cyan-400/40',     bg: 'bg-cyan-50/80 dark:bg-cyan-950/30'     },
-  { dot: 'bg-orange-500',   text: 'text-orange-600',   border: 'border-orange-400/40',   bg: 'bg-orange-50/80 dark:bg-orange-950/30'   },
-  { dot: 'bg-pink-500',     text: 'text-pink-600',     border: 'border-pink-400/40',     bg: 'bg-pink-50/80 dark:bg-pink-950/30'     },
+  { dot: 'bg-primary', text: 'text-primary', border: 'border-primary/30', bg: 'bg-primary/8' },
+  {
+    dot: 'bg-amber-500',
+    text: 'text-amber-600',
+    border: 'border-amber-400/40',
+    bg: 'bg-amber-50/80 dark:bg-amber-950/30',
+  },
+  {
+    dot: 'bg-emerald-500',
+    text: 'text-emerald-600',
+    border: 'border-emerald-400/40',
+    bg: 'bg-emerald-50/80 dark:bg-emerald-950/30',
+  },
+  {
+    dot: 'bg-violet-500',
+    text: 'text-violet-600',
+    border: 'border-violet-400/40',
+    bg: 'bg-violet-50/80 dark:bg-violet-950/30',
+  },
+  {
+    dot: 'bg-rose-500',
+    text: 'text-rose-600',
+    border: 'border-rose-400/40',
+    bg: 'bg-rose-50/80 dark:bg-rose-950/30',
+  },
+  {
+    dot: 'bg-cyan-500',
+    text: 'text-cyan-600',
+    border: 'border-cyan-400/40',
+    bg: 'bg-cyan-50/80 dark:bg-cyan-950/30',
+  },
+  {
+    dot: 'bg-orange-500',
+    text: 'text-orange-600',
+    border: 'border-orange-400/40',
+    bg: 'bg-orange-50/80 dark:bg-orange-950/30',
+  },
+  {
+    dot: 'bg-pink-500',
+    text: 'text-pink-600',
+    border: 'border-pink-400/40',
+    bg: 'bg-pink-50/80 dark:bg-pink-950/30',
+  },
 ] as const;
 
 const MAX_GROUPS = 8;
@@ -78,8 +113,7 @@ function CellValue({ status, value }: { status: string; value: string }) {
         secret
       </span>
     );
-  if (!value)
-    return <span className="text-muted-foreground/40 italic text-xs">empty</span>;
+  if (!value) return <span className="text-muted-foreground/40 italic text-xs">empty</span>;
   return (
     <span className="font-mono text-xs break-all leading-relaxed" title={value}>
       {value}
@@ -91,13 +125,7 @@ function CellValue({ status, value }: { status: string; value: string }) {
 // Compare table
 // ---------------------------------------------------------------------------
 
-function CompareTable({
-  rows,
-  groups,
-}: {
-  rows: CompareRow[];
-  groups: VariableGroup[];
-}) {
+function CompareTable({ rows, groups }: { rows: CompareRow[]; groups: VariableGroup[] }) {
   if (rows.length === 0) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -116,13 +144,12 @@ function CompareTable({
           {groups.map((g, i) => {
             const palette = GROUP_PALETTE[i % GROUP_PALETTE.length]!;
             return (
-              <th
-                key={g.id}
-                className="px-3 py-2.5 text-left text-xs font-semibold min-w-[160px]"
-              >
+              <th key={g.id} className="px-3 py-2.5 text-left text-xs font-semibold min-w-[160px]">
                 <span className={cn('inline-flex items-center gap-1.5', palette.text)}>
                   <span className={cn('h-1.5 w-1.5 rounded-full shrink-0', palette.dot)} />
-                  <span className="truncate max-w-[180px]" title={g.name}>{g.name}</span>
+                  <span className="truncate max-w-[180px]" title={g.name}>
+                    {g.name}
+                  </span>
                 </span>
               </th>
             );
@@ -131,14 +158,14 @@ function CompareTable({
       </thead>
       <tbody className="divide-y divide-border/30">
         {rows.map((row) => (
-          <tr
-            key={row.key}
-            className={cn('transition-all', ROW_CLASS[row.rowStatus])}
-          >
+          <tr key={row.key} className={cn('transition-all', ROW_CLASS[row.rowStatus])}>
             <td className="px-3 py-2 align-top">
               <span className="inline-flex items-center gap-1.5">
                 <span
-                  className={cn('h-1.5 w-1.5 rounded-full shrink-0 mt-0.5', STATUS_DOT[row.rowStatus])}
+                  className={cn(
+                    'h-1.5 w-1.5 rounded-full shrink-0 mt-0.5',
+                    STATUS_DOT[row.rowStatus],
+                  )}
                   title={ROW_STATUS_LABEL[row.rowStatus]}
                 />
                 <span className="font-mono text-xs break-all">{row.key}</span>
@@ -180,7 +207,9 @@ function GroupChip({
       )}
     >
       <span className={cn('h-1.5 w-1.5 rounded-full shrink-0', palette.dot)} />
-      <span className="max-w-[140px] truncate" title={group.name}>{group.name}</span>
+      <span className="max-w-[140px] truncate" title={group.name}>
+        {group.name}
+      </span>
       <span className="opacity-50 tabular-nums">({variableCount(group)})</span>
       <button
         onClick={onRemove}
@@ -247,8 +276,7 @@ export function MultiGroupCompare() {
     if (g) setSelectedGroups((prev) => [...prev, g]);
   };
 
-  const removeGroup = (id: number) =>
-    setSelectedGroups((prev) => prev.filter((g) => g.id !== id));
+  const removeGroup = (id: number) => setSelectedGroups((prev) => prev.filter((g) => g.id !== id));
 
   const result = useMemo(() => {
     if (selectedGroups.length < 2) return null;
@@ -294,11 +322,9 @@ export function MultiGroupCompare() {
   return (
     <RequireProject>
       <div className="flex h-full flex-col overflow-hidden">
-
         {/* ── Top bar ─────────────────────────────────────────── */}
         <div className="shrink-0 border-b border-border bg-background">
           <div className="mx-auto w-full max-w-6xl space-y-3 px-6 py-4">
-
             {/* Title */}
             <div className="flex items-center gap-2.5">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary ring-1 ring-primary/20">
@@ -323,12 +349,7 @@ export function MultiGroupCompare() {
             ) : (
               <div className="flex flex-wrap items-center gap-2">
                 {selectedGroups.map((g, i) => (
-                  <GroupChip
-                    key={g.id}
-                    group={g}
-                    index={i}
-                    onRemove={() => removeGroup(g.id)}
-                  />
+                  <GroupChip key={g.id} group={g} index={i} onRemove={() => removeGroup(g.id)} />
                 ))}
 
                 {selectedGroups.length < MAX_GROUPS && availableGroups.length > 0 && (
@@ -359,9 +380,11 @@ export function MultiGroupCompare() {
                 {/* Status chips */}
                 {(['conflict', 'partial', 'same'] as RowStatus[]).map((s) => {
                   const count =
-                    s === 'conflict' ? result.counts.conflict
-                    : s === 'partial' ? result.counts.partial
-                    : result.counts.same;
+                    s === 'conflict'
+                      ? result.counts.conflict
+                      : s === 'partial'
+                        ? result.counts.partial
+                        : result.counts.same;
                   return (
                     <StatusChip
                       key={s}

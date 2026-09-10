@@ -43,9 +43,7 @@ export function ReleaseGroupMapping() {
         if (usages.length === 0) {
           rows.push({ groupName: vg.name, pipelineName: '—', stageName: '—', scope: 'Not used' });
         } else {
-          const sorted = [...usages].sort((a, b) =>
-            a.pipelineName.localeCompare(b.pipelineName),
-          );
+          const sorted = [...usages].sort((a, b) => a.pipelineName.localeCompare(b.pipelineName));
           for (const u of sorted) {
             rows.push({
               groupName: vg.name,
@@ -183,8 +181,8 @@ export function ReleaseGroupMapping() {
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <Download className="h-5 w-5 flex-shrink-0" />
                       <span>
-                        All variable groups × all release pipelines — one flat sheet, easy to
-                        filter in Excel.
+                        All variable groups × all release pipelines — one flat sheet, easy to filter
+                        in Excel.
                       </span>
                     </div>
                     <div className="flex items-center gap-2">

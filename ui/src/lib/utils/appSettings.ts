@@ -80,10 +80,8 @@ export interface MergeResult {
  * Merge variable keys from multiple groups into a single deduplicated list.
  * First-added group wins when the same key appears in multiple groups.
  */
-export function mergeGroups(
-  groups: Array<{ name: string; keys: string[] }>,
-): MergeResult {
-  const firstSeen = new Map<string, string>();   // key → first group name
+export function mergeGroups(groups: Array<{ name: string; keys: string[] }>): MergeResult {
+  const firstSeen = new Map<string, string>(); // key → first group name
   const allGroups = new Map<string, string[]>(); // key → all group names
 
   for (const { name, keys } of groups) {

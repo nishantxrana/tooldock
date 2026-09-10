@@ -51,7 +51,8 @@ export const TOOLS: readonly ToolDefinition[] = [
   {
     id: 'variable-group-diff',
     title: 'Variable Group Diff',
-    description: 'Compare two variable groups key by key — spot changed, missing, and secret values.',
+    description:
+      'Compare two variable groups key by key — spot changed, missing, and secret values.',
     icon: Diff,
     group: 'Variable Groups',
     path: '/tools/variable-group-diff',
@@ -61,7 +62,8 @@ export const TOOLS: readonly ToolDefinition[] = [
   {
     id: 'multi-group-compare',
     title: 'Multi-Group Compare',
-    description: 'Compare 2–8 variable groups side by side — spot conflicts, missing keys, and secrets across all environments at once.',
+    description:
+      'Compare 2–8 variable groups side by side — spot conflicts, missing keys, and secrets across all environments at once.',
     icon: GitCompareArrows,
     group: 'Variable Groups',
     path: '/tools/multi-group-compare',
@@ -101,7 +103,8 @@ export const TOOLS: readonly ToolDefinition[] = [
   {
     id: 'export-release-vars',
     title: 'Export Release Variables',
-    description: 'Export inline pipeline variables to CSV, JSON, TXT, or XLSX for migration to a variable group.',
+    description:
+      'Export inline pipeline variables to CSV, JSON, TXT, or XLSX for migration to a variable group.',
     icon: GitBranch,
     group: 'Release Pipelines',
     path: '/tools/export-release-vars',

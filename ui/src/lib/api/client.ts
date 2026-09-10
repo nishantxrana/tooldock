@@ -54,8 +54,15 @@ export async function adoRequest<T>(
   pathSegments: string[],
   options: RequestOptions = {},
 ): Promise<T> {
-  const { method = 'GET', query, body, patOverride, signal, errorContext = 'read', basePath } =
-    options;
+  const {
+    method = 'GET',
+    query,
+    body,
+    patOverride,
+    signal,
+    errorContext = 'read',
+    basePath,
+  } = options;
   const pat = patOverride ?? getSessionSnapshot().pat;
 
   if (!pat) {

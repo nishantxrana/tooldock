@@ -6,7 +6,11 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { CopyButton } from '@/components/common/CopyButton';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { findDuplicateKeys, formatAppSettings, parseAppSettingsKeys } from '@/lib/utils/appSettings';
+import {
+  findDuplicateKeys,
+  formatAppSettings,
+  parseAppSettingsKeys,
+} from '@/lib/utils/appSettings';
 import { cn } from '@/lib/utils/cn';
 
 /** Tool 5 — find duplicate keys in pasted App Settings (one-line or multiline). */
@@ -47,7 +51,8 @@ export function DuplicateFinder() {
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <span className="tabular-nums font-medium text-foreground">{totalKeys}</span> total
                 <span className="mx-1 text-border">·</span>
-                <span className="tabular-nums font-medium text-foreground">{uniqueKeys}</span> unique
+                <span className="tabular-nums font-medium text-foreground">{uniqueKeys}</span>{' '}
+                unique
                 {duplicates.length > 0 && (
                   <>
                     <span className="mx-1 text-border">·</span>
@@ -128,10 +133,7 @@ export function DuplicateFinder() {
               return (
                 <div
                   key={idx}
-                  className={cn(
-                    'flex gap-3 px-4 py-0.5',
-                    isDup && 'bg-destructive/10',
-                  )}
+                  className={cn('flex gap-3 px-4 py-0.5', isDup && 'bg-destructive/10')}
                 >
                   <span className="w-8 flex-shrink-0 select-none text-right tabular-nums text-muted-foreground">
                     {idx + 1}

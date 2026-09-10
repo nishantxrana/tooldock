@@ -50,7 +50,10 @@ export function CsvDropzone({ onFile }: CsvDropzoneProps) {
             Use this CSV
           </button>
           <button
-            onClick={() => { setPasteMode(false); setPasteText(''); }}
+            onClick={() => {
+              setPasteMode(false);
+              setPasteText('');
+            }}
             className="rounded-md border px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
             Cancel
@@ -63,7 +66,11 @@ export function CsvDropzone({ onFile }: CsvDropzoneProps) {
   return (
     <div className="space-y-2">
       <div
-        onDragOver={(e) => { e.preventDefault(); setDragging(true); setTypeError(false); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragging(true);
+          setTypeError(false);
+        }}
         onDragLeave={() => setDragging(false)}
         onDrop={(e) => {
           e.preventDefault();
@@ -74,18 +81,24 @@ export function CsvDropzone({ onFile }: CsvDropzoneProps) {
         onClick={() => inputRef.current?.click()}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click(); }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
+        }}
         className={cn(
           'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-6 py-10 text-center transition-colors',
           dragging ? 'border-primary bg-accent' : 'border-border hover:border-primary/50',
           typeError && 'border-destructive/50 bg-destructive/5',
         )}
       >
-        <FileUp className={cn('h-8 w-8', typeError ? 'text-destructive' : 'text-muted-foreground')} />
+        <FileUp
+          className={cn('h-8 w-8', typeError ? 'text-destructive' : 'text-muted-foreground')}
+        />
         {typeError ? (
           <>
             <p className="text-sm font-medium text-destructive">Only .csv files are supported</p>
-            <p className="text-xs text-muted-foreground">Drop a .csv file, or click to browse again</p>
+            <p className="text-xs text-muted-foreground">
+              Drop a .csv file, or click to browse again
+            </p>
           </>
         ) : (
           <>

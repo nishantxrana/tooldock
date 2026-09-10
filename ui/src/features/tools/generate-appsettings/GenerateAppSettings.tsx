@@ -119,7 +119,9 @@ export function GenerateAppSettings() {
                     description: `${variableCount(g)} vars`,
                   }))}
                   onChange={(v) => addGroup(Number(v))}
-                  placeholder={groups.length === 0 ? 'Select a variable group…' : 'Add another variable group…'}
+                  placeholder={
+                    groups.length === 0 ? 'Select a variable group…' : 'Add another variable group…'
+                  }
                   searchPlaceholder="Search groups…"
                 />
               ) : (
@@ -136,8 +138,8 @@ export function GenerateAppSettings() {
           <Callout variant="warning">
             <div className="space-y-1.5">
               <p className="font-medium">
-                {merged.duplicates.length} key{merged.duplicates.length === 1 ? '' : 's'} appear
-                in multiple groups — the first group's key is used.
+                {merged.duplicates.length} key{merged.duplicates.length === 1 ? '' : 's'} appear in
+                multiple groups — the first group's key is used.
               </p>
               <ul className="space-y-0.5 font-mono text-xs">
                 {merged.duplicates.map(({ key, groups: gs }) => (
@@ -165,7 +167,9 @@ export function GenerateAppSettings() {
             actions={
               <>
                 <Badge variant="secondary">
-                  {groups.length > 1 ? `${merged.keys.length} / ${totalVars} vars` : `${merged.keys.length} vars`}
+                  {groups.length > 1
+                    ? `${merged.keys.length} / ${totalVars} vars`
+                    : `${merged.keys.length} vars`}
                 </Badge>
                 <label className="flex items-center gap-2 pr-1 text-sm">
                   <Switch checked={oneLine} onCheckedChange={setOneLine} id="oneline" />

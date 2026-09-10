@@ -33,9 +33,9 @@ export interface CompareResult {
 export function compareGroups(groups: VariableGroup[]): CompareResult {
   const maps: VariableMap[] = groups.map((g) => g.variables ?? {});
 
-  const allKeys = [
-    ...new Set(maps.flatMap((m) => Object.keys(m))),
-  ].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+  const allKeys = [...new Set(maps.flatMap((m) => Object.keys(m)))].sort((a, b) =>
+    a.localeCompare(b, undefined, { sensitivity: 'base' }),
+  );
 
   const rows: CompareRow[] = allKeys.map((key) => {
     const cells: CompareCell[] = maps.map((m) => {

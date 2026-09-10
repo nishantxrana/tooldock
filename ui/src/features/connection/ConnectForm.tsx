@@ -101,7 +101,6 @@ export function ConnectForm({ title = 'Connect to Azure DevOps', onConnected }: 
             Kept in memory only — never stored, cleared on refresh
           </p>
         </div>
-
       </div>
 
       {error != null && <ErrorBanner error={error} />}
@@ -129,7 +128,10 @@ export function ConnectForm({ title = 'Connect to Azure DevOps', onConnected }: 
             Required PAT scopes
           </span>
           <ChevronDown
-            className={cn('h-3.5 w-3.5 text-muted-foreground transition-transform duration-150', scopesOpen && 'rotate-180')}
+            className={cn(
+              'h-3.5 w-3.5 text-muted-foreground transition-transform duration-150',
+              scopesOpen && 'rotate-180',
+            )}
           />
         </button>
         {scopesOpen && (

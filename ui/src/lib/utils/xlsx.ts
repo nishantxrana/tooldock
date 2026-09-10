@@ -107,10 +107,7 @@ function formatKeyValueSheet(ws: ExcelJS.Worksheet, fullName: string, rows: Xlsx
 }
 
 /** Serialize the workbook to an ArrayBuffer and trigger download. */
-async function downloadWorkbook(
-  workbook: ExcelJS.Workbook,
-  filename: string,
-): Promise<void> {
+async function downloadWorkbook(workbook: ExcelJS.Workbook, filename: string): Promise<void> {
   const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -204,7 +201,10 @@ export async function exportReleaseMappingXlsx(
   // Auto-width for all 4 columns
   const colKeys: (keyof ReleaseMappingRow)[] = ['groupName', 'pipelineName', 'stageName', 'scope'];
   colKeys.forEach((key, ci) => {
-    const longest = rows.reduce((max, r) => Math.max(max, r[key].length), RELEASE_HEADERS[ci]?.length ?? 10);
+    const longest = rows.reduce(
+      (max, r) => Math.max(max, r[key].length),
+      RELEASE_HEADERS[ci]?.length ?? 10,
+    );
     ws.getColumn(ci + 1).width = Math.min(longest + 2, 60);
   });
 

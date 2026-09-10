@@ -34,7 +34,12 @@ function ToolRow({ tool, connected }: { tool: ToolDefinition; connected: boolean
 
       {/* Text */}
       <div className="min-w-0 flex-1">
-        <p className={cn('text-sm font-medium leading-tight', locked ? 'text-muted-foreground' : 'text-foreground')}>
+        <p
+          className={cn(
+            'text-sm font-medium leading-tight',
+            locked ? 'text-muted-foreground' : 'text-foreground',
+          )}
+        >
           {tool.title}
         </p>
         <p className="mt-0.5 truncate text-xs text-muted-foreground">{tool.description}</p>
@@ -42,9 +47,7 @@ function ToolRow({ tool, connected }: { tool: ToolDefinition; connected: boolean
 
       {/* Right side */}
       <div className="flex shrink-0 items-center gap-2">
-        {tool.requiresConnection && (
-          <Lock className="h-3 w-3 text-muted-foreground/50" />
-        )}
+        {tool.requiresConnection && <Lock className="h-3 w-3 text-muted-foreground/50" />}
         {!locked && (
           <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/0 transition-all group-hover:text-muted-foreground/60 group-hover:translate-x-0.5" />
         )}
@@ -78,7 +81,6 @@ export function HomePage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-10 space-y-8">
-
       {/* Page header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -91,7 +93,10 @@ export function HomePage() {
 
         {/* Connection status — actionable */}
         {isConnected ? (
-          <Badge variant="outline" className="gap-1.5 text-xs font-normal text-muted-foreground mt-1">
+          <Badge
+            variant="outline"
+            className="gap-1.5 text-xs font-normal text-muted-foreground mt-1"
+          >
             <Wifi className="h-3 w-3 text-emerald-500" />
             Connected
           </Badge>
@@ -115,7 +120,12 @@ export function HomePage() {
           <section key={group} className="space-y-1">
             {/* Section header */}
             <div className="flex items-center gap-2.5 px-4 pb-1">
-              <span className={cn('text-[11px] font-semibold uppercase tracking-widest', groupColors[group] ?? 'text-muted-foreground')}>
+              <span
+                className={cn(
+                  'text-[11px] font-semibold uppercase tracking-widest',
+                  groupColors[group] ?? 'text-muted-foreground',
+                )}
+              >
                 {group}
               </span>
               <div className="flex-1 h-px bg-border" />

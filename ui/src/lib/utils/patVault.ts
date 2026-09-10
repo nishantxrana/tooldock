@@ -55,10 +55,7 @@ function idbDelete(db: IDBDatabase, id: string): Promise<void> {
  * Encrypt the PAT and store it in IndexedDB alongside a non-extractable
  * AES-GCM-256 key. The plaintext PAT never touches disk.
  */
-export async function lockPat(
-  pat: string,
-  organization: string,
-): Promise<{ lockedAt: number }> {
+export async function lockPat(pat: string, organization: string): Promise<{ lockedAt: number }> {
   const db = await openVaultDb();
 
   const key = await crypto.subtle.generateKey(

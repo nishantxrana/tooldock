@@ -79,11 +79,7 @@ export function PersistButton() {
           aria-label={isPatPersisted ? 'Remove persisted PAT' : 'Persist PAT encrypted'}
           className={isPatPersisted ? 'bg-primary/10 text-primary hover:bg-primary/15' : ''}
         >
-          {isPatPersisted ? (
-            <Lock className="h-4 w-4" />
-          ) : (
-            <LockOpen className="h-4 w-4" />
-          )}
+          {isPatPersisted ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
         </Button>
       </TooltipTrigger>
       <TooltipContent side="bottom" className="max-w-64">

@@ -49,7 +49,9 @@ export function Combobox({
           className={cn('w-full justify-between font-normal', className)}
         >
           <span className="truncate text-left">
-            {selected ? selected.label : (
+            {selected ? (
+              selected.label
+            ) : (
               <span className="text-muted-foreground">{placeholder}</span>
             )}
           </span>
@@ -84,7 +86,10 @@ export function Combobox({
                   className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground"
                 >
                   <Check
-                    className={cn('h-4 w-4 shrink-0', value === option.value ? 'opacity-100' : 'opacity-0')}
+                    className={cn(
+                      'h-4 w-4 shrink-0',
+                      value === option.value ? 'opacity-100' : 'opacity-0',
+                    )}
                   />
                   <span className="flex-1 truncate">{option.label}</span>
                   {option.description && (
