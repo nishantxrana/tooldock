@@ -264,7 +264,7 @@ export function MultiGroupCompare() {
   const [exporting, setExporting] = useState(false);
 
   const { data: allGroups, isLoading, isError, error, refetch } = useVariableGroups();
-  const groups = allGroups ?? [];
+  const groups = useMemo(() => allGroups ?? [], [allGroups]);
 
   const availableGroups = useMemo(
     () => groups.filter((g) => !selectedGroups.some((s) => s.id === g.id)),

@@ -247,7 +247,7 @@ export function VariableGroupDiff() {
   const [exporting, setExporting] = useState(false);
 
   const { data: allGroups, isLoading, isError, error, refetch } = useVariableGroups();
-  const groups = allGroups ?? [];
+  const groups = useMemo(() => allGroups ?? [], [allGroups]);
 
   const leftOptions = useMemo(
     () => groups.filter((g) => g.id !== rightGroup?.id),
