@@ -1,11 +1,6 @@
+import { useMemo } from 'react';
 import { Boxes } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ErrorBanner } from './ErrorBanner';
 import { EmptyState } from './EmptyState';
@@ -18,13 +13,18 @@ interface VariableGroupPickerProps {
   label?: string;
 }
 
-/** Dropdown to select one of the project's variable groups. */
+/** Searchable dropdown to select one of the project's variable groups. */
 export function VariableGroupPicker({
   value,
   onChange,
   label = 'Variable Group',
 }: VariableGroupPickerProps) {
   const { data: groups, isLoading, isError, error, refetch } = useVariableGroups();
+
+  const options = useMemo(
+    () => (groups ?? []).map((g) => ({ value: String(g.id), label: g.name })),
+    [groups],
+  );
 
   if (isLoading) return <Skeleton className="h-9 w-full max-w-sm" />;
   if (isError) return <ErrorBanner error={error} onRetry={() => refetch()} />;
@@ -41,25 +41,18 @@ export function VariableGroupPicker({
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-sm font-medium text-muted-foreground">{label}</label>
-      <Select
+      <Combobox
+        options={options}
         value={value !== null ? String(value) : undefined}
-        onValueChange={(v) => {
+        onChange={(v) => {
           const id = Number(v);
           const group = groups.find((g) => g.id === id);
           if (group) onChange(id, group);
         }}
-      >
-        <SelectTrigger className="w-full max-w-sm">
-          <SelectValue placeholder="Select a variable group…" />
-        </SelectTrigger>
-        <SelectContent>
-          {groups.map((g) => (
-            <SelectItem key={g.id} value={String(g.id)}>
-              {g.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        placeholder="Select a variable group…"
+        searchPlaceholder="Search groups…"
+        className="max-w-sm"
+      />
     </div>
   );
 }

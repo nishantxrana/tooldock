@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
 import { toKeyValueCsv } from '@/lib/utils/csv';
 import { safeFilename } from '@/lib/utils/download';
 import { exportKeyValueXlsx } from '@/lib/utils/xlsx';
@@ -199,21 +200,13 @@ export function ExportReleaseVars() {
                     No release pipelines found in this project.
                   </p>
                 ) : (
-                  <Select
+                  <Combobox
+                    options={definitions.map((d) => ({ value: String(d.id), label: d.name }))}
                     value={selectedDefId !== null ? String(selectedDefId) : undefined}
-                    onValueChange={(v) => handleDefChange(Number(v))}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a release pipeline…" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {definitions.map((d) => (
-                        <SelectItem key={d.id} value={String(d.id)}>
-                          {d.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(v) => handleDefChange(Number(v))}
+                    placeholder="Select a release pipeline…"
+                    searchPlaceholder="Search pipelines…"
+                  />
                 )}
               </div>
             )}

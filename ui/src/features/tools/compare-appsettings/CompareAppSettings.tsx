@@ -12,13 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
 import { compareKeys } from '@/lib/utils/diff';
 import { formatAppSettings, mergeGroups, parseAppSettingsKeys } from '@/lib/utils/appSettings';
 import { variableCount, variableNames } from '@/lib/utils/variables';
@@ -135,7 +129,7 @@ export function CompareAppSettings() {
   const canCompare = groups.length > 0 && pasted.trim().length > 0;
 
   const groupLabel =
-    groups.length === 1 ? groups[0].name : groups.length > 1 ? `${groups.length} groups` : '';
+    groups.length === 1 ? (groups[0]?.name ?? '') : groups.length > 1 ? `${groups.length} groups` : '';
 
   const isHealthy =
     result.counts.missingFromAppSettings === 0 &&
@@ -305,29 +299,17 @@ export function CompareAppSettings() {
                 )}
 
                 {available.length > 0 ? (
-                  <Select key={selectKey} onValueChange={(v) => addGroup(Number(v))}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue
-                        placeholder={
-                          groups.length === 0
-                            ? 'Select a variable group…'
-                            : 'Add another variable group…'
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {available.map((g) => (
-                        <SelectItem key={g.id} value={String(g.id)}>
-                          <span className="flex items-center justify-between gap-4 w-full">
-                            <span>{g.name}</span>
-                            <span className="tabular-nums text-muted-foreground text-xs">
-                              {variableCount(g)} vars
-                            </span>
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Combobox
+                    key={selectKey}
+                    options={available.map((g) => ({
+                      value: String(g.id),
+                      label: g.name,
+                      description: `${variableCount(g)} vars`,
+                    }))}
+                    onChange={(v) => addGroup(Number(v))}
+                    placeholder={groups.length === 0 ? 'Select a variable group…' : 'Add another variable group…'}
+                    searchPlaceholder="Search groups…"
+                  />
                 ) : (
                   groups.length > 0 && (
                     <p className="text-xs text-muted-foreground">All variable groups added.</p>

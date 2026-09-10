@@ -9,13 +9,7 @@ import { ErrorBanner } from '@/components/common/ErrorBanner';
 import { RequireProject } from '@/components/common/RequireProject';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
 import { safeFilename } from '@/lib/utils/download';
 import { exportReleaseMappingXlsx, type ReleaseMappingRow } from '@/lib/utils/xlsx';
 import { useReleaseMapping } from '@/lib/hooks/useReleaseMapping';
@@ -30,6 +24,7 @@ export function ReleaseGroupMapping() {
   const [exporting, setExporting] = useState(false);
 
   const variableGroups = data?.variableGroups ?? [];
+  const groupOptions = variableGroups.map((g) => ({ value: String(g.id), label: g.name }));
   const mapping = data?.mapping ?? new Map();
   const progress = data?.progress;
 
@@ -119,21 +114,14 @@ export function ReleaseGroupMapping() {
                     <label className="text-sm font-medium text-muted-foreground">
                       Variable Group
                     </label>
-                    <Select
+                    <Combobox
+                      options={groupOptions}
                       value={selectedGroupId !== null ? String(selectedGroupId) : undefined}
-                      onValueChange={(v) => setSelectedGroupId(Number(v))}
-                    >
-                      <SelectTrigger className="w-full max-w-sm">
-                        <SelectValue placeholder="Select a variable group…" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {variableGroups.map((g) => (
-                          <SelectItem key={g.id} value={String(g.id)}>
-                            {g.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onChange={(v) => setSelectedGroupId(Number(v))}
+                      placeholder="Select a variable group…"
+                      searchPlaceholder="Search groups…"
+                      className="max-w-sm"
+                    />
                   </div>
                 </SectionCard>
 

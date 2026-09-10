@@ -1,12 +1,6 @@
-import { FolderGit2 } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Combobox } from '@/components/ui/combobox';
 import { useProjects } from '@/lib/hooks/useProjects';
 import { useSessionStore } from '@/store/sessionStore';
 
@@ -16,32 +10,27 @@ export function ProjectSelector() {
   const selectedProject = useSessionStore((s) => s.selectedProject);
   const selectProject = useSessionStore((s) => s.selectProject);
 
+  const options = useMemo(
+    () => (projects ?? []).map((p) => ({ value: p.id, label: p.name })),
+    [projects],
+  );
+
   if (isLoading) return <Skeleton className="h-9 w-52" />;
   if (isError || !projects) {
     return <span className="text-sm text-destructive">Failed to load projects</span>;
   }
 
   return (
-    <Select
+    <Combobox
+      options={options}
       value={selectedProject?.id ?? undefined}
-      onValueChange={(id) => {
+      onChange={(id) => {
         const project = projects.find((p) => p.id === id) ?? null;
         selectProject(project);
       }}
-    >
-      <SelectTrigger className="h-9 w-52">
-        <div className="flex items-center gap-2 overflow-hidden">
-          <FolderGit2 className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-          <SelectValue placeholder="Select project…" />
-        </div>
-      </SelectTrigger>
-      <SelectContent>
-        {projects.map((p) => (
-          <SelectItem key={p.id} value={p.id}>
-            {p.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+      placeholder="Select project…"
+      searchPlaceholder="Search projects…"
+      className="h-9 w-52"
+    />
   );
 }

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Boxes, Download, Layers, Loader2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Boxes, Download, Layers, Loader2, Search, X } from 'lucide-react';
 import { Callout } from '@/components/common/Callout';
+import { Input } from '@/components/ui/input';
 import { PageLayout } from '@/components/common/PageLayout';
 import { SectionCard } from '@/components/common/SectionCard';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -28,6 +29,7 @@ export function ExportAllGroups() {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [initialized, setInitialized] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [search, setSearch] = useState('');
 
   // Pre-check every group the first time the list loads; leave user edits
   // alone on any later refetch.
@@ -40,12 +42,34 @@ export function ExportAllGroups() {
 
   const total = groups?.length ?? 0;
   const selectedGroups = (groups ?? []).filter((g) => selected.has(g.id));
-  const allSelected = total > 0 && selected.size === total;
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return q ? (groups ?? []).filter((g) => g.name.toLowerCase().includes(q)) : (groups ?? []);
+  }, [groups, search]);
+
+  // "Select all" operates on the filtered list — so when searching it only toggles visible items
+  const allFilteredSelected = filtered.length > 0 && filtered.every((g) => selected.has(g.id));
+
   const hasSecrets = selectedGroups.some((g) => variableEntries(g).some((e) => e.isSecret));
 
   const toggleAll = () => {
     if (!groups) return;
-    setSelected(allSelected ? new Set() : new Set(groups.map((g) => g.id)));
+    if (allFilteredSelected) {
+      // Deselect only the filtered items, keep others
+      setSelected((prev) => {
+        const next = new Set(prev);
+        filtered.forEach((g) => next.delete(g.id));
+        return next;
+      });
+    } else {
+      // Select all filtered items (add to existing selection)
+      setSelected((prev) => {
+        const next = new Set(prev);
+        filtered.forEach((g) => next.add(g.id));
+        return next;
+      });
+    }
   };
 
   const toggleOne = (id: number) => {
@@ -103,8 +127,8 @@ export function ExportAllGroups() {
             <SectionCard
               title={
                 <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
-                  <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
-                  Select all
+                  <Checkbox checked={allFilteredSelected} onCheckedChange={toggleAll} />
+                  {search ? 'Select filtered' : 'Select all'}
                 </label>
               }
               actions={
@@ -114,24 +138,44 @@ export function ExportAllGroups() {
               }
               contentClassName="p-0"
             >
-              <ul className="max-h-96 divide-y divide-border overflow-y-auto scrollbar-thin">
-                {groups.map((g) => (
-                  <li key={g.id}>
-                    <label className="flex cursor-pointer items-center justify-between gap-3 px-4 py-2.5 text-sm hover:bg-muted/50">
-                      <span className="flex items-center gap-2.5 truncate">
-                        <Checkbox
-                          checked={selected.has(g.id)}
-                          onCheckedChange={() => toggleOne(g.id)}
-                        />
-                        <span className="truncate">{g.name}</span>
-                      </span>
-                      <span className="flex-shrink-0 text-xs text-muted-foreground">
-                        {variableCount(g)} vars
-                      </span>
-                    </label>
-                  </li>
-                ))}
-              </ul>
+              {/* Search bar */}
+              <div className="flex items-center gap-2 border-b px-3 py-2">
+                <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Filter groups…"
+                  className="h-7 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 focus-visible:border-0"
+                />
+                {search && (
+                  <button onClick={() => setSearch('')} className="text-muted-foreground hover:text-foreground">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {filtered.length === 0 ? (
+                <p className="px-4 py-6 text-center text-sm text-muted-foreground">No groups match "{search}".</p>
+              ) : (
+                <ul className="max-h-80 divide-y divide-border overflow-y-auto scrollbar-thin">
+                  {filtered.map((g) => (
+                    <li key={g.id}>
+                      <label className="flex cursor-pointer items-center justify-between gap-3 px-4 py-2.5 text-sm hover:bg-muted/50">
+                        <span className="flex items-center gap-2.5 truncate">
+                          <Checkbox
+                            checked={selected.has(g.id)}
+                            onCheckedChange={() => toggleOne(g.id)}
+                          />
+                          <span className="truncate">{g.name}</span>
+                        </span>
+                        <span className="flex-shrink-0 text-xs text-muted-foreground">
+                          {variableCount(g)} vars
+                        </span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </SectionCard>
 
             {hasSecrets && (
