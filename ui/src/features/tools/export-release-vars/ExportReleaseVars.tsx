@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Download, FileSpreadsheet, GitBranch, Loader2 } from 'lucide-react';
+import { Download, FileSpreadsheet, GitBranch, Loader2, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { PageLayout } from '@/components/common/PageLayout';
 import { SectionCard } from '@/components/common/SectionCard';
@@ -9,6 +10,7 @@ import { ErrorBanner } from '@/components/common/ErrorBanner';
 import { RequireProject } from '@/components/common/RequireProject';
 import { FormatToggle } from '@/components/common/FormatToggle';
 import { Callout } from '@/components/common/Callout';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -97,6 +99,7 @@ export function ExportReleaseVars() {
   const {
     data: def,
     isLoading: defLoading,
+    isFetching: defFetching,
     isError: defError,
     error: defErr,
     refetch: defRefetch,
@@ -116,9 +119,19 @@ export function ExportReleaseVars() {
 
   const scopes = useMemo(() => {
     if (!def) return [];
+    const varCount = (vars: Record<string, unknown> | undefined) =>
+      Object.keys(vars ?? {}).length;
     return [
-      { id: DEFINITION_SCOPE, label: 'Definition-level (all stages)' },
-      ...def.environments.map((e) => ({ id: String(e.id), label: `Stage: ${e.name}` })),
+      {
+        id: DEFINITION_SCOPE,
+        label: 'Definition-level (all stages)',
+        count: varCount(def.variables),
+      },
+      ...def.environments.map((e) => ({
+        id: String(e.id),
+        label: `Stage: ${e.name}`,
+        count: varCount(e.variables),
+      })),
     ];
   }, [def]);
 
@@ -152,6 +165,10 @@ export function ExportReleaseVars() {
         vars.map((v) => ({ key: v.key, value: v.value })),
         { titleRow: false },
       );
+    } catch (err) {
+      toast.error('XLSX export failed', {
+        description: err instanceof Error ? err.message : 'Unknown error',
+      });
     } finally {
       setXlsxExporting(false);
     }
@@ -170,7 +187,7 @@ export function ExportReleaseVars() {
           actions={<FormatToggle formats={FORMATS} value={format} onChange={setFormat} />}
         >
           <div className="space-y-3">
-            {defsLoading && <Skeleton className="h-9 w-full max-w-sm" />}
+            {defsLoading && <Skeleton className="h-9 w-full" />}
             {defsError && <ErrorBanner error={defsErr} onRetry={() => defsRefetch()} />}
             {!defsLoading && !defsError && (
               <div className="flex flex-col gap-1.5">
@@ -186,7 +203,7 @@ export function ExportReleaseVars() {
                     value={selectedDefId !== null ? String(selectedDefId) : undefined}
                     onValueChange={(v) => handleDefChange(Number(v))}
                   >
-                    <SelectTrigger className="w-full max-w-sm">
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select a release pipeline…" />
                     </SelectTrigger>
                     <SelectContent>
@@ -202,23 +219,43 @@ export function ExportReleaseVars() {
             )}
 
             {/* Scope picker — shown after a pipeline is selected */}
-            {defLoading && <Skeleton className="h-9 w-full max-w-sm" />}
+            {defLoading && <Skeleton className="h-9 w-full" />}
             {defError && <ErrorBanner error={defErr} onRetry={() => defRefetch()} />}
             {def && scopes.length > 0 && (
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-muted-foreground">Scope</label>
-                <Select value={scopeId} onValueChange={setScopeId}>
-                  <SelectTrigger className="w-full max-w-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {scopes.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        {s.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="flex items-end gap-2">
+                <div className="flex flex-1 flex-col gap-1.5">
+                  <label className="text-sm font-medium text-muted-foreground">Scope</label>
+                  <Select value={scopeId} onValueChange={setScopeId}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {scopes.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          <span className="flex w-full items-center justify-between gap-4">
+                            <span>{s.label}</span>
+                            <span className="tabular-nums text-muted-foreground">
+                              {s.count} var{s.count === 1 ? '' : 's'}
+                            </span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => defRefetch()}
+                      disabled={defFetching}
+                    >
+                      <RefreshCw className={defFetching ? 'animate-spin' : ''} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Refresh pipeline definition</TooltipContent>
+                </Tooltip>
               </div>
             )}
           </div>
@@ -237,7 +274,7 @@ export function ExportReleaseVars() {
               <EmptyState
                 icon={GitBranch}
                 title="No inline variables"
-                description="This scope has no inline variables defined. Variables may be coming entirely from attached variable groups."
+                description="This scope has no inline variables. Variables may come entirely from attached variable groups — use Release Pipeline Mapping to see which groups are linked."
               />
             ) : format === 'xlsx' ? (
               <SectionCard

@@ -15,6 +15,7 @@ import { safeFilename } from '@/lib/utils/download';
 import { exportKeyValueXlsx } from '@/lib/utils/xlsx';
 import { variableCount, variableEntries } from '@/lib/utils/variables';
 import { useSessionStore } from '@/store/sessionStore';
+import { toast } from 'sonner';
 import type { VariableGroup } from '@/types/ado';
 
 type Format = 'csv' | 'json' | 'txt' | 'xlsx';
@@ -86,6 +87,10 @@ export function ExportGroup() {
         group.name,
         entries.map((e) => ({ key: e.key, value: e.value ?? SECRET_PLACEHOLDER })),
       );
+    } catch (err) {
+      toast.error('XLSX export failed', {
+        description: err instanceof Error ? err.message : 'Unknown error',
+      });
     } finally {
       setXlsxExporting(false);
     }
