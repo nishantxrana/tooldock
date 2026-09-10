@@ -5,7 +5,7 @@
 
 export const APP_NAME = 'ToolDock';
 export const APP_SUBTITLE = 'Productivity tools for Azure DevOps engineers.';
-export const APP_VERSION = '0.1.0';
+export const APP_VERSION = '1.0.0';
 export const PORTFOLIO_URL =
   import.meta.env.VITE_PORTFOLIO_URL ?? 'https://github.com/nishantxrana/portfolio';
 
