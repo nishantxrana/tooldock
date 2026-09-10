@@ -49,6 +49,14 @@ const ALL_BORDERS: Partial<ExcelJS.Borders> = {
   right: THIN_BLACK,
 };
 
+const GRAY_ITALIC: Partial<ExcelJS.Font> = { italic: true, color: { argb: 'FF999999' }, size: 10 };
+
+/** Apply a placeholder value ([secret] or [empty]) with gray italic styling. */
+function setPlaceholder(cell: ExcelJS.Cell, label: '[secret]' | '[empty]') {
+  cell.value = label;
+  cell.font = GRAY_ITALIC;
+}
+
 /** Apply the standard Key/Value sheet formatting to a worksheet. */
 function formatKeyValueSheet(ws: ExcelJS.Worksheet, fullName: string, rows: XlsxRow[]) {
   // --- Title row (row 1) ---
@@ -79,7 +87,11 @@ function formatKeyValueSheet(ws: ExcelJS.Worksheet, fullName: string, rows: Xlsx
     const kCell = ws.getCell(rowIdx, 1);
     const vCell = ws.getCell(rowIdx, 2);
     kCell.value = r.key;
-    vCell.value = r.value;
+    if (r.value === '') {
+      setPlaceholder(vCell, '[empty]');
+    } else {
+      vCell.value = r.value;
+    }
     for (const cell of [kCell, vCell]) {
       cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
       cell.border = ALL_BORDERS;
@@ -304,15 +316,17 @@ export async function exportDiffXlsx(
     applyDiffCellBase(keyCell, fill);
 
     const leftCell = ws.getCell(rowIdx, 2);
-    leftCell.value =
-      r.status === 'right-only' ? '' : r.leftSecret ? '[secret]' : (r.leftValue ?? '');
-    if (r.leftSecret) leftCell.font = { italic: true, color: { argb: 'FF888888' }, size: 10 };
+    if (r.status === 'right-only') setPlaceholder(leftCell, '[empty]');
+    else if (r.leftSecret) setPlaceholder(leftCell, '[secret]');
+    else if (!r.leftValue) setPlaceholder(leftCell, '[empty]');
+    else leftCell.value = r.leftValue;
     applyDiffCellBase(leftCell, fill);
 
     const rightCell = ws.getCell(rowIdx, 3);
-    rightCell.value =
-      r.status === 'left-only' ? '' : r.rightSecret ? '[secret]' : (r.rightValue ?? '');
-    if (r.rightSecret) rightCell.font = { italic: true, color: { argb: 'FF888888' }, size: 10 };
+    if (r.status === 'left-only') setPlaceholder(rightCell, '[empty]');
+    else if (r.rightSecret) setPlaceholder(rightCell, '[secret]');
+    else if (!r.rightValue) setPlaceholder(rightCell, '[empty]');
+    else rightCell.value = r.rightValue;
     applyDiffCellBase(rightCell, fill);
 
     const statusCell = ws.getCell(rowIdx, 4);
@@ -327,6 +341,94 @@ export async function exportDiffXlsx(
   ws.getColumn(2).width = 60;
   ws.getColumn(3).width = 60;
   ws.getColumn(4).width = 14;
+
+  await downloadWorkbook(workbook, filename);
+}
+
+// ---------------------------------------------------------------------------
+// Multi-Group Compare export
+// ---------------------------------------------------------------------------
+
+import type { CompareRow } from './groupCompare';
+
+export async function exportMultiGroupXlsx(
+  filename: string,
+  groupNames: string[],
+  rows: CompareRow[],
+): Promise<void> {
+  const mod = await import('exceljs');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { Workbook } = ((mod as any).default ?? mod) as typeof import('exceljs');
+  const workbook = new Workbook();
+  const ws = workbook.addWorksheet('Compare');
+
+  const totalCols = groupNames.length + 1; // Key + one per group
+
+  // Title row
+  ws.mergeCells(1, 1, 1, totalCols);
+  const titleCell = ws.getCell(1, 1);
+  titleCell.value = `Variable Group Compare — ${groupNames.join('  ·  ')}`;
+  titleCell.fill = NAVY;
+  titleCell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+  titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+  titleCell.border = ALL_BORDERS;
+  ws.getRow(1).height = 22;
+
+  // Header row
+  const headers = ['Key', ...groupNames];
+  headers.forEach((label, ci) => {
+    const cell = ws.getCell(2, ci + 1);
+    cell.value = label;
+    cell.fill = NAVY;
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    cell.border = ALL_BORDERS;
+  });
+  ws.getRow(2).height = 18;
+
+  // Fill per row status
+  const ROW_FILL: Record<string, string | null> = {
+    same: null,
+    conflict: 'FFFFF3CD',
+    partial: 'FFCCE5FF',
+  };
+
+  // Data rows
+  rows.forEach((row, i) => {
+    const rowIdx = i + 3;
+    const fill = ROW_FILL[row.rowStatus] ?? null;
+
+    const keyCell = ws.getCell(rowIdx, 1);
+    keyCell.value = row.key;
+    keyCell.font = { name: 'Consolas', size: 10 };
+    if (fill) keyCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } };
+    keyCell.alignment = { horizontal: 'left', vertical: 'middle' };
+    keyCell.border = ALL_BORDERS;
+
+    row.cells.forEach((cell, ci) => {
+      const xlCell = ws.getCell(rowIdx, ci + 2);
+      if (cell.status === 'missing') {
+        setPlaceholder(xlCell, '[empty]');
+      } else if (cell.status === 'secret') {
+        setPlaceholder(xlCell, '[secret]');
+      } else if (!cell.value) {
+        setPlaceholder(xlCell, '[empty]');
+      } else {
+        xlCell.value = cell.value;
+        xlCell.font = { size: 10 };
+      }
+      if (fill) xlCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } };
+      xlCell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+      xlCell.border = ALL_BORDERS;
+    });
+  });
+
+  // Column widths
+  const longestKey = rows.reduce((m, r) => Math.max(m, r.key.length), 3);
+  ws.getColumn(1).width = Math.min(longestKey + 2, 50);
+  groupNames.forEach((_, ci) => {
+    ws.getColumn(ci + 2).width = 45;
+  });
 
   await downloadWorkbook(workbook, filename);
 }

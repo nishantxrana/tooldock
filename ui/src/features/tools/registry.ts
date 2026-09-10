@@ -20,6 +20,7 @@ import { ExportReleaseVars } from './export-release-vars/ExportReleaseVars';
 import { DuplicateFinder } from './duplicate-finder/DuplicateFinder';
 import { SortAppSettings } from './sort-appsettings/SortAppSettings';
 import { VariableGroupDiff } from './variable-group-diff/VariableGroupDiff';
+import { MultiGroupCompare } from './multi-group-compare/MultiGroupCompare';
 
 /**
  * The single source of truth for tools. The sidebar and routes are generated
@@ -55,6 +56,16 @@ export const TOOLS: readonly ToolDefinition[] = [
     group: 'Variable Groups',
     path: '/tools/variable-group-diff',
     component: VariableGroupDiff,
+    requiresConnection: true,
+  },
+  {
+    id: 'multi-group-compare',
+    title: 'Multi-Group Compare',
+    description: 'Compare 2–8 variable groups side by side — spot conflicts, missing keys, and secrets across all environments at once.',
+    icon: GitCompareArrows,
+    group: 'Variable Groups',
+    path: '/tools/multi-group-compare',
+    component: MultiGroupCompare,
     requiresConnection: true,
   },
   {
