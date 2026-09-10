@@ -4,9 +4,9 @@
 
 # ToolDock
 
-**ToolDock is a browser-only toolkit for Azure DevOps engineers who manage variable groups, App Service settings, and release pipeline variables — nine focused tools instead of the portal plus a spreadsheet plus copy-paste.**
+**ToolDock is a browser-only toolkit for Azure DevOps engineers who manage variable groups, App Service settings, and release pipeline variables — eleven focused tools instead of the portal plus a spreadsheet plus copy-paste.**
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)
@@ -30,6 +30,8 @@ flowchart LR
 |---|---|---|
 | **Generate App Service Settings** | Builds the `-KEY "$(KEY)"` argument string from a variable group's variable names, one line or multiline | Yes |
 | **Compare vs App Settings** | Diffs a variable group against pasted App Settings — matched / missing / extra / duplicate buckets, searchable, with a text report | Yes |
+| **Variable Group Diff** | Compares two variable groups key by key — changed, missing, and secret values highlighted; exports to XLSX with color-coded rows | Yes |
+| **Multi-Group Compare** | Compares 2–8 groups side by side in a pivot table — conflicts and missing keys surface across all environments at once; exports to XLSX | Yes |
 | **CSV Import** | Imports `Key,Value` rows into a variable group; shows a full per-key overwrite/new/same plan and requires confirmation before writing | Yes |
 | **Export Variable Group** | Exports one group as CSV, JSON, TXT, or XLSX; JSON matches the Azure DevOps variables shape | Yes |
 | **Export All Variable Groups** | Exports selected groups into one multi-sheet XLSX workbook, one sheet per group | Yes |
@@ -39,6 +41,8 @@ flowchart LR
 | **Sort App Settings** | Sorts pasted App Settings alphabetically, preserving formatting | No |
 
 CSV Import is the only tool that writes to Azure DevOps. Everything else reads.
+
+All XLSX exports use a consistent style: navy header rows, color-coded data rows per status, and `[secret]` / `[empty]` placeholders in gray italic for values that cannot be shown.
 
 ## Quick start
 
@@ -58,7 +62,7 @@ PAT scopes required (Azure DevOps → User settings → Personal access tokens):
 | Project and Team → Read | List projects in your organization | Yes |
 | Release → Read | Read release pipeline definitions | Optional |
 
-Grant the Release scope only if you use the two Release Pipelines tools. A read-only PAT covers eight of the nine tools.
+Grant the Release scope only if you use the two Release Pipelines tools. A read-only PAT covers nine of the eleven tools.
 
 ## How it works
 
@@ -135,7 +139,7 @@ Organization and PAT are entered in the UI at runtime — no other env vars need
 | Routing and data | React Router 6, TanStack Query 5 |
 | State | Zustand 5 (in-memory); optional AES-GCM vault in IndexedDB |
 | Styling | Tailwind CSS 3, shadcn/ui (Radix primitives), Lucide icons, Sonner |
-| Spreadsheets | SheetJS `xlsx` 0.20.3 (installed from `cdn.sheetjs.com`) |
+| Spreadsheets | ExcelJS (browser bundle via Vite alias) — full cell styling: fills, fonts, borders, merged cells |
 
 ## Project structure
 
@@ -157,7 +161,7 @@ ToolDock/
         ├── lib/
         │   ├── api/           ← client, auth header, errors, per-resource modules
         │   ├── hooks/         ← TanStack Query hooks
-        │   └── utils/         ← patVault, csv, xlsx, diff, appSettings, theme
+        │   └── utils/         ← patVault, csv, xlsx, groupDiff, groupCompare, appSettings, theme
         ├── store/             ← sessionStore (PAT, org, project)
         ├── types/             ← ado.ts, tools.ts
         └── components/        ← layout, common components, shadcn/ui primitives
@@ -180,11 +184,9 @@ No router or sidebar edits needed. See [ui/README.md](ui/README.md) for the full
 
 **Does refreshing keep me connected?** Only with the lock enabled and within the 30-minute window. The selected project is never restored — you re-pick it each session.
 
-**Do all tools need a connection?** No. Duplicate Finder and Sort App Settings work on pasted text with no account. The other seven need an organization, a PAT, and a selected project.
+**Do all tools need a connection?** No. Duplicate Finder and Sort App Settings work on pasted text with no account. The other nine need an organization, a PAT, and a selected project.
 
 **Why do the Release Pipelines tools fail when the rest work?** They require the optional Release (Read) PAT scope and the `/vsrm` proxy rule. If your deployment predates that rule, add it.
-
-**Why does `npm install` fetch from cdn.sheetjs.com?** SheetJS distributes from its own CDN. The `package.json` pins the 0.20.3 tarball URL directly, so install requires network access to that host.
 
 ## Contributing
 

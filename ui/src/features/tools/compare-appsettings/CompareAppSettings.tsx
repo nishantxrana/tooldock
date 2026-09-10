@@ -426,7 +426,7 @@ export function CompareAppSettings() {
               </div>
             </div>
 
-            <div className={cn('grid gap-6 md:grid-cols-2 xl:grid-cols-4')}>
+            <div className="grid gap-6 md:grid-cols-2">
               <Category
                 title="Matched"
                 keys={result.matched}
