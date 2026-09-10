@@ -1,4 +1,4 @@
-import { LogOut, PanelLeft, Wifi } from 'lucide-react';
+import { LogOut, PanelLeft, RefreshCw, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -8,6 +8,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { PersistButton } from './PersistButton';
 import { unlockPat } from '@/lib/utils/patVault';
 import { useSessionStore } from '@/store/sessionStore';
+import { useVariableGroups } from '@/lib/hooks/useVariableGroups';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -17,6 +18,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
   const isConnected = useSessionStore((s) => s.isConnected);
   const organization = useSessionStore((s) => s.organization);
   const disconnect = useSessionStore((s) => s.disconnect);
+  const { isFetching: groupsFetching, refetch: refetchGroups } = useVariableGroups();
 
   const handleDisconnect = async () => {
     await unlockPat().catch(() => {});
@@ -52,6 +54,20 @@ export function Header({ onToggleSidebar }: HeaderProps) {
         {isConnected ? (
           <>
             <ProjectSelector />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => refetchGroups()}
+                  disabled={groupsFetching}
+                  aria-label="Refresh variable groups"
+                >
+                  <RefreshCw className={groupsFetching ? 'animate-spin' : ''} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Refresh variable groups</TooltipContent>
+            </Tooltip>
             <ThemeToggle />
             <PersistButton />
             <Tooltip>

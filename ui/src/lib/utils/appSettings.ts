@@ -69,6 +69,45 @@ export function parseAppSettingsKeys(text: string): ParsedKey[] {
   return result;
 }
 
+export interface MergeResult {
+  /** Unique keys sorted A→Z (case-insensitive). First-added group wins on duplicates. */
+  keys: string[];
+  /** Keys that appeared in more than one group, with the group names listed. */
+  duplicates: { key: string; groups: string[] }[];
+}
+
+/**
+ * Merge variable keys from multiple groups into a single deduplicated list.
+ * First-added group wins when the same key appears in multiple groups.
+ */
+export function mergeGroups(
+  groups: Array<{ name: string; keys: string[] }>,
+): MergeResult {
+  const firstSeen = new Map<string, string>();   // key → first group name
+  const allGroups = new Map<string, string[]>(); // key → all group names
+
+  for (const { name, keys } of groups) {
+    for (const key of keys) {
+      const lower = key.toLowerCase();
+      if (!firstSeen.has(lower)) firstSeen.set(lower, key);
+      const arr = allGroups.get(lower) ?? [];
+      arr.push(name);
+      allGroups.set(lower, arr);
+    }
+  }
+
+  const sort = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base' });
+
+  const keys = [...firstSeen.values()].sort(sort);
+
+  const duplicates = [...allGroups.entries()]
+    .filter(([, gs]) => gs.length > 1)
+    .map(([lower, gs]) => ({ key: firstSeen.get(lower)!, groups: gs }))
+    .sort((a, b) => sort(a.key, b.key));
+
+  return { keys, duplicates };
+}
+
 /** Distinct keys, in first-seen order. */
 export function distinctKeys(parsed: ParsedKey[]): string[] {
   const seen = new Set<string>();

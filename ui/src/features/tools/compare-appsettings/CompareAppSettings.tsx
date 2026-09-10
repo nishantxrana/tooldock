@@ -1,18 +1,28 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, GitCompareArrows } from 'lucide-react';
+import { ChevronDown, ChevronRight, GitCompareArrows, X } from 'lucide-react';
 import { PageLayout } from '@/components/common/PageLayout';
 import { SectionCard } from '@/components/common/SectionCard';
 import { EmptyState } from '@/components/common/EmptyState';
 import { SearchBox } from '@/components/common/SearchBox';
 import { CopyButton } from '@/components/common/CopyButton';
-import { VariableGroupPicker } from '@/components/common/VariableGroupPicker';
+import { Callout } from '@/components/common/Callout';
+import { ErrorBanner } from '@/components/common/ErrorBanner';
 import { RequireProject } from '@/components/common/RequireProject';
 import { Button } from '@/components/ui/button';
 import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { compareKeys } from '@/lib/utils/diff';
-import { formatAppSettings, parseAppSettingsKeys } from '@/lib/utils/appSettings';
-import { variableNames } from '@/lib/utils/variables';
+import { formatAppSettings, mergeGroups, parseAppSettingsKeys } from '@/lib/utils/appSettings';
+import { variableCount, variableNames } from '@/lib/utils/variables';
+import { useVariableGroups } from '@/lib/hooks/useVariableGroups';
 import { downloadText, safeFilename } from '@/lib/utils/download';
 import { cn } from '@/lib/utils/cn';
 import type { VariableGroup } from '@/types/ado';
@@ -23,9 +33,7 @@ interface CategoryProps {
   variant: BadgeProps['variant'];
   filter: string;
   emptyLabel: string;
-  /** Extra action shown in the card header alongside the default copy button. */
   extraAction?: React.ReactNode;
-  /** Start collapsed — useful for large matched lists. */
   defaultCollapsed?: boolean;
 }
 
@@ -92,17 +100,42 @@ function Category({
   );
 }
 
-/** Tool 2 — compare a variable group's keys with pasted App Settings. */
+/** Tool 2 — compare one or more variable groups' keys with pasted App Settings. */
 export function CompareAppSettings() {
-  const [group, setGroup] = useState<VariableGroup | null>(null);
+  const [groups, setGroups] = useState<VariableGroup[]>([]);
   const [pasted, setPasted] = useState('');
   const [filter, setFilter] = useState('');
+  const [selectKey, setSelectKey] = useState(0);
 
-  const groupKeys = useMemo(() => (group ? variableNames(group) : []), [group]);
+  const { data: allGroups, isLoading, isError, error, refetch } = useVariableGroups();
+
+  const addedIds = useMemo(() => new Set(groups.map((g) => g.id)), [groups]);
+  const available = useMemo(
+    () => (allGroups ?? []).filter((g) => !addedIds.has(g.id)),
+    [allGroups, addedIds],
+  );
+
+  const addGroup = (id: number) => {
+    const g = allGroups?.find((g) => g.id === id);
+    if (g) {
+      setGroups((prev) => [...prev, g]);
+      setSelectKey((k) => k + 1);
+    }
+  };
+  const removeGroup = (id: number) => setGroups((prev) => prev.filter((g) => g.id !== id));
+
+  const merged = useMemo(
+    () => mergeGroups(groups.map((g) => ({ name: g.name, keys: variableNames(g) }))),
+    [groups],
+  );
+
   const appKeys = useMemo(() => parseAppSettingsKeys(pasted).map((p) => p.key), [pasted]);
-  const result = useMemo(() => compareKeys(groupKeys, appKeys), [groupKeys, appKeys]);
+  const result = useMemo(() => compareKeys(merged.keys, appKeys), [merged.keys, appKeys]);
 
-  const canCompare = group && pasted.trim().length > 0;
+  const canCompare = groups.length > 0 && pasted.trim().length > 0;
+
+  const groupLabel =
+    groups.length === 1 ? groups[0].name : groups.length > 1 ? `${groups.length} groups` : '';
 
   const isHealthy =
     result.counts.missingFromAppSettings === 0 &&
@@ -129,8 +162,8 @@ export function CompareAppSettings() {
         : null;
 
     const lines = [
-      `# ToolDock — Variable Group vs App Settings`,
-      `Group   : ${group?.name}`,
+      `# ToolDock — Variable Group(s) vs App Settings`,
+      `Groups  : ${groups.map((g) => g.name).join(', ')}`,
       `Date    : ${now}`,
       `Status  : ${isHealthy ? 'PASS' : 'FAIL'} — ${status}`,
       '',
@@ -138,6 +171,13 @@ export function CompareAppSettings() {
       `Missing from App   : ${result.counts.missingFromAppSettings}`,
       `Extra in App       : ${result.counts.extraInAppSettings}`,
       `Duplicates in App  : ${result.counts.duplicatesInAppSettings}`,
+      ...(merged.duplicates.length > 0
+        ? [
+            '',
+            `Duplicate keys across groups (${merged.duplicates.length}):`,
+            ...merged.duplicates.map((d) => `  ${d.key} → ${d.groups.join(', ')}`),
+          ]
+        : []),
       '',
       '─'.repeat(60),
       '',
@@ -145,7 +185,7 @@ export function CompareAppSettings() {
       result.counts.missingFromAppSettings === 0
         ? 'None'
         : [
-            'Keys in the variable group that are absent from App Settings.',
+            'Keys in the variable group(s) absent from App Settings.',
             'Add the lines below to the App Service Deploy task:',
             '',
             missingAsAppSettings ?? '',
@@ -157,7 +197,7 @@ export function CompareAppSettings() {
       result.counts.extraInAppSettings === 0
         ? 'None'
         : [
-            'Keys present in App Settings but not in the variable group.',
+            'Keys present in App Settings but not in the variable group(s).',
             'Consider removing these unless they are set elsewhere:',
             '',
             ...result.extraInAppSettings,
@@ -176,13 +216,12 @@ export function CompareAppSettings() {
       result.counts.matched === 0 ? 'None' : result.matched.join('\n'),
     ];
 
-    downloadText(`${safeFilename(group?.name ?? 'compare')}-comparison.txt`, lines.join('\n'));
+    downloadText(`${safeFilename(groupLabel || 'compare')}-comparison.txt`, lines.join('\n'));
   };
 
   const exportCsv = () => {
     const now = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
 
-    // Status priority order: actionable issues first, matched last.
     type Row = { key: string; status: string; note: string };
     const rows: Row[] = [
       ...result.missingFromAppSettings.map((k) => ({
@@ -193,7 +232,7 @@ export function CompareAppSettings() {
       ...result.extraInAppSettings.map((k) => ({
         key: k,
         status: 'Extra in App Settings',
-        note: 'Present in App Settings but not in variable group',
+        note: 'Present in App Settings but not in variable group(s)',
       })),
       ...result.duplicatesInAppSettings.map((k) => ({
         key: k,
@@ -209,13 +248,13 @@ export function CompareAppSettings() {
 
     const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
     const csvLines = [
-      `# Group: ${group?.name} | Date: ${now} | Status: ${isHealthy ? 'PASS' : 'FAIL'}`,
+      `# Groups: ${groups.map((g) => g.name).join(', ')} | Date: ${now} | Status: ${isHealthy ? 'PASS' : 'FAIL'}`,
       ['Key', 'Status', 'Action / Note'].map(escape).join(','),
       ...rows.map((r) => [r.key, r.status, r.note].map(escape).join(',')),
     ];
 
     downloadText(
-      `${safeFilename(group?.name ?? 'compare')}-comparison.csv`,
+      `${safeFilename(groupLabel || 'compare')}-comparison.csv`,
       csvLines.join('\n'),
       'text/csv',
     );
@@ -225,13 +264,80 @@ export function CompareAppSettings() {
     <RequireProject>
       <PageLayout
         title="Compare Variable Group vs App Settings"
-        description="Detect keys that are matched, missing, extra, or duplicated. Order is ignored."
+        description="Detect keys that are matched, missing, extra, or duplicated. Supports multiple variable groups."
         icon={GitCompareArrows}
       >
         <div className="grid gap-6 lg:grid-cols-2">
-          <SectionCard title="Variable Group">
-            <VariableGroupPicker value={group?.id ?? null} onChange={(_, g) => setGroup(g)} />
+          {/* Multi-group picker */}
+          <SectionCard title="Variable Groups">
+            {isLoading && <Skeleton className="h-9 w-full" />}
+            {isError && <ErrorBanner error={error} onRetry={() => refetch()} />}
+            {!isLoading && !isError && (
+              <div className="space-y-2">
+                {groups.length > 0 && (
+                  <ul className="space-y-1.5 pb-1">
+                    {groups.map((g, i) => (
+                      <li
+                        key={g.id}
+                        className="flex items-center justify-between rounded-md border bg-muted/30 px-3 py-2"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-xs tabular-nums text-muted-foreground w-4 shrink-0">
+                            {i + 1}.
+                          </span>
+                          <span className="truncate font-medium text-sm">{g.name}</span>
+                          <Badge variant="secondary" className="shrink-0">
+                            {variableCount(g)} vars
+                          </Badge>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                          onClick={() => removeGroup(g.id)}
+                          aria-label={`Remove ${g.name}`}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {available.length > 0 ? (
+                  <Select key={selectKey} onValueChange={(v) => addGroup(Number(v))}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue
+                        placeholder={
+                          groups.length === 0
+                            ? 'Select a variable group…'
+                            : 'Add another variable group…'
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {available.map((g) => (
+                        <SelectItem key={g.id} value={String(g.id)}>
+                          <span className="flex items-center justify-between gap-4 w-full">
+                            <span>{g.name}</span>
+                            <span className="tabular-nums text-muted-foreground text-xs">
+                              {variableCount(g)} vars
+                            </span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  groups.length > 0 && (
+                    <p className="text-xs text-muted-foreground">All variable groups added.</p>
+                  )
+                )}
+              </div>
+            )}
           </SectionCard>
+
+          {/* App settings paste area */}
           <SectionCard title="App Settings (pasted from Release Pipeline)">
             <Textarea
               value={pasted}
@@ -242,16 +348,32 @@ export function CompareAppSettings() {
           </SectionCard>
         </div>
 
+        {/* Cross-group duplicate warning */}
+        {merged.duplicates.length > 0 && (
+          <Callout variant="warning">
+            <div className="space-y-1.5">
+              <p className="font-medium">
+                {merged.duplicates.length} key{merged.duplicates.length === 1 ? '' : 's'} appear
+                in multiple groups — the first group's key is used for comparison.
+              </p>
+              <ul className="space-y-0.5 font-mono text-xs">
+                {merged.duplicates.map(({ key, groups: gs }) => (
+                  <li key={key}>
+                    <span className="font-medium">{key}</span>
+                    <span className="text-warning/70"> → </span>
+                    {gs.join(', ')}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Callout>
+        )}
+
         {canCompare ? (
           <>
             {/* Summary bar */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-4 py-2.5 text-sm">
-              <span
-                className={cn(
-                  'font-semibold',
-                  isHealthy ? 'text-success' : 'text-destructive',
-                )}
-              >
+              <span className={cn('font-semibold', isHealthy ? 'text-success' : 'text-destructive')}>
                 {isHealthy ? 'All matched' : 'Issues found'}
               </span>
               <span className="h-4 w-px bg-border" />
@@ -271,14 +393,7 @@ export function CompareAppSettings() {
                 <span className="ml-1 text-muted-foreground">missing</span>
               </span>
               <span>
-                <span
-                  className={cn(
-                    'tabular-nums font-medium',
-                    result.counts.extraInAppSettings > 0 && 'text-foreground',
-                  )}
-                >
-                  {result.counts.extraInAppSettings}
-                </span>
+                <span className="tabular-nums font-medium">{result.counts.extraInAppSettings}</span>
                 <span className="ml-1 text-muted-foreground">extra</span>
               </span>
               <span>
@@ -292,6 +407,14 @@ export function CompareAppSettings() {
                 </span>
                 <span className="ml-1 text-muted-foreground">duplicates</span>
               </span>
+              {groups.length > 1 && (
+                <>
+                  <span className="h-4 w-px bg-border" />
+                  <span className="text-muted-foreground">
+                    {merged.keys.length} unique keys across {groups.length} groups
+                  </span>
+                </>
+              )}
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -312,7 +435,6 @@ export function CompareAppSettings() {
             </div>
 
             <div className={cn('grid gap-6 md:grid-cols-2 xl:grid-cols-4')}>
-              {/* Matched — collapsed by default since it's rarely the focus */}
               <Category
                 title="Matched"
                 keys={result.matched}
@@ -321,7 +443,6 @@ export function CompareAppSettings() {
                 emptyLabel="No matching keys."
                 defaultCollapsed={result.counts.matched > 0}
               />
-              {/* Missing — copy as app settings format for direct paste into release task */}
               <Category
                 title="Missing from App Settings"
                 keys={result.missingFromAppSettings}
@@ -334,7 +455,6 @@ export function CompareAppSettings() {
                       value={() => formatAppSettings(result.missingFromAppSettings, 'multiline')}
                       label="Copy as app settings"
                       size="sm"
-                      title="Copy as -KEY &quot;$(KEY)&quot; format"
                     />
                   )
                 }
@@ -359,7 +479,7 @@ export function CompareAppSettings() {
           <EmptyState
             icon={GitCompareArrows}
             title="Ready to compare"
-            description="Select a variable group and paste App Settings to see the differences."
+            description="Select one or more variable groups and paste App Settings to see the differences."
           />
         )}
       </PageLayout>
