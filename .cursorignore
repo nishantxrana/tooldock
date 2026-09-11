@@ -1,0 +1,36 @@
+# ToolDock — Cursor indexing exclusions
+# Keep source (ui/src), configs, README, and .env.example indexed.
+# Only exclude generated/dependency/cache noise that slows indexing.
+
+# ---------------------------------------------------------------------------
+# Dependencies (largest cost: ~212MB)
+# ---------------------------------------------------------------------------
+ui/node_modules/
+
+# ---------------------------------------------------------------------------
+# Build / compile outputs (Vite + tsc)
+# ---------------------------------------------------------------------------
+ui/dist/
+ui/dist-ssr/
+ui/**/*.tsbuildinfo
+
+# ---------------------------------------------------------------------------
+# Local session dumps (noisy / large; keep docs/superpowers plans indexed)
+# ---------------------------------------------------------------------------
+docs/*.txt
+
+# ---------------------------------------------------------------------------
+# Env secrets & local overrides (keep .env.example indexed)
+# ---------------------------------------------------------------------------
+ui/.env
+ui/.env.*
+!ui/.env.example
+*.local
+
+# ---------------------------------------------------------------------------
+# Logs, OS junk, editor caches
+# ---------------------------------------------------------------------------
+*.log
+.DS_Store
+Thumbs.db
+.eslintcache
