@@ -13,7 +13,7 @@ import {
 } from '@/lib/utils/appSettings';
 import { cn } from '@/lib/utils/cn';
 
-/** Tool 5 — find duplicate keys in pasted App Settings (one-line or multiline). */
+/** Tool 5 - find duplicate keys in pasted App Settings (one-line or multiline). */
 export function DuplicateFinder() {
   const [input, setInput] = useState('');
 
@@ -124,7 +124,7 @@ export function DuplicateFinder() {
         </SectionCard>
       </div>
 
-      {/* Tokenized source view — one token per row, works for both one-liner and multiline */}
+      {/* Tokenized source view - one token per row, works for both one-liner and multiline */}
       {parsed.length > 0 && (
         <SectionCard title="All tokens (duplicates highlighted)" contentClassName="p-0">
           <div className="max-h-[360px] overflow-auto scrollbar-thin rounded-b-lg font-mono text-sm">

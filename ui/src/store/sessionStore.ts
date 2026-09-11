@@ -7,7 +7,7 @@ import type { Project } from '@/types/ado';
  *
  * SECURITY: The PAT is never persisted by default. localStorage / sessionStorage
  * / cookies are never used. The user may voluntarily encrypt and store the PAT
- * in IndexedDB via the PersistButton — see lib/utils/patVault.ts. A page
+ * in IndexedDB via the PersistButton - see lib/utils/patVault.ts. A page
  * refresh without that opt-in clears everything and forces reconnection.
  */
 interface SessionState {
@@ -24,7 +24,7 @@ interface SessionState {
   variableGroupsWritable: boolean | null;
   /** Whether the PAT is currently persisted to encrypted IndexedDB. */
   isPatPersisted: boolean;
-  /** Timestamp (ms) when the PAT was last locked — drives the countdown timer. */
+  /** Timestamp (ms) when the PAT was last locked - drives the countdown timer. */
   lockedAt: number | null;
 
   connect: (pat: string, organization: string) => void;

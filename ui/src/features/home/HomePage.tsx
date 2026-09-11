@@ -91,7 +91,7 @@ export function HomePage() {
           </div>
         </div>
 
-        {/* Connection status — actionable */}
+        {/* Connection status - actionable */}
         {isConnected ? (
           <Badge
             variant="outline"
@@ -151,10 +151,10 @@ export function HomePage() {
         );
       })}
 
-      {/* Footer nudge — only when disconnected */}
+      {/* Footer nudge - only when disconnected */}
       {!isConnected && (
         <p className="px-4 text-xs text-muted-foreground/60">
-          {TOOLS.filter((t) => !t.requiresConnection).length} tools work without a connection —{' '}
+          {TOOLS.filter((t) => !t.requiresConnection).length} tools work without a connection -{' '}
           <Link to="/connect" className="text-primary hover:underline">
             connect to unlock the rest
           </Link>

@@ -8,7 +8,7 @@ import { useSessionStore } from '@/store/sessionStore';
 
 const EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
 
-/** Lock/unlock button in the header — voluntarily persists the PAT to encrypted IndexedDB. */
+/** Lock/unlock button in the header - voluntarily persists the PAT to encrypted IndexedDB. */
 export function PersistButton() {
   const pat = useSessionStore((s) => s.pat);
   const organization = useSessionStore((s) => s.organization);
@@ -64,9 +64,9 @@ export function PersistButton() {
 
   const tooltipText = isPatPersisted
     ? minutesLeft !== null && minutesLeft <= 1
-      ? 'PAT persisted encrypted — expires in less than a minute. Click to remove.'
-      : `PAT persisted encrypted — expires in ${minutesLeft ?? '…'} min. Click to remove from storage.`
-    : 'PAT is in memory only — click to persist encrypted (survives refresh).';
+      ? 'PAT persisted encrypted - expires in less than a minute. Click to remove.'
+      : `PAT persisted encrypted - expires in ${minutesLeft ?? '…'} min. Click to remove from storage.`
+    : 'PAT is in memory only - click to persist encrypted (survives refresh).';
 
   return (
     <Tooltip>

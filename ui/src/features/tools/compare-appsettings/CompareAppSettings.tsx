@@ -94,7 +94,7 @@ function Category({
   );
 }
 
-/** Tool 2 — compare one or more variable groups' keys with pasted App Settings. */
+/** Tool 2 - compare one or more variable groups' keys with pasted App Settings. */
 export function CompareAppSettings() {
   const [groups, setGroups] = useState<VariableGroup[]>([]);
   const [pasted, setPasted] = useState('');
@@ -143,7 +143,7 @@ export function CompareAppSettings() {
   const exportReport = () => {
     const now = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
     const status = isHealthy
-      ? 'PASS — all keys matched'
+      ? 'PASS - all keys matched'
       : [
           result.counts.missingFromAppSettings > 0 &&
             `${result.counts.missingFromAppSettings} missing`,
@@ -160,10 +160,10 @@ export function CompareAppSettings() {
         : null;
 
     const lines = [
-      `# ToolDock — Variable Group(s) vs App Settings`,
+      `# ToolDock - Variable Group(s) vs App Settings`,
       `Groups  : ${groups.map((g) => g.name).join(', ')}`,
       `Date    : ${now}`,
-      `Status  : ${isHealthy ? 'PASS' : 'FAIL'} — ${status}`,
+      `Status  : ${isHealthy ? 'PASS' : 'FAIL'} - ${status}`,
       '',
       `Matched            : ${result.counts.matched}`,
       `Missing from App   : ${result.counts.missingFromAppSettings}`,
@@ -344,7 +344,7 @@ export function CompareAppSettings() {
             <div className="space-y-1.5">
               <p className="font-medium">
                 {merged.duplicates.length} key{merged.duplicates.length === 1 ? '' : 's'} appear in
-                multiple groups — the first group's key is used for comparison.
+                multiple groups - the first group's key is used for comparison.
               </p>
               <ul className="space-y-0.5 font-mono text-xs">
                 {merged.duplicates.map(({ key, groups: gs }) => (

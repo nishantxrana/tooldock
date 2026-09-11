@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* GitHub Light — canvas */
+    /* GitHub Light - canvas */
     --background: 0 0% 100%; /* #ffffff */
     --foreground: 213 13% 14%; /* #1f2328 */
 
@@ -53,7 +53,7 @@
   }
 
   .dark {
-    /* GitHub Dark — canvas */
+    /* GitHub Dark - canvas */
     --background: 216 28% 7%; /* #0d1117 */
     --foreground: 208 35% 93%; /* #e6edf3 */
 
@@ -65,7 +65,7 @@
 
     /* GitHub Dark blue #4491e9 */
     --primary: 212 79% 59%;
-    --primary-foreground: 218 80% 2%; /* near #010409 — dark text on blue */
+    --primary-foreground: 218 80% 2%; /* near #010409 - dark text on blue */
 
     --secondary: 218 17% 18%; /* #262c36 */
     --secondary-foreground: 208 35% 93%;
@@ -89,7 +89,7 @@
     --input: 212 12% 21%;
     --ring: 212 79% 59%;
 
-    /* GitHub Dark sidebar #010409 — deepest black */
+    /* GitHub Dark sidebar #010409 - deepest black */
     --sidebar: 218 80% 2%; /* #010409 */
     --sidebar-foreground: 208 35% 93%;
     --sidebar-border: 215 15% 15%; /* #21262d */

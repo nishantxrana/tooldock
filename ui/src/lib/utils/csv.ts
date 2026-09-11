@@ -98,11 +98,11 @@ export function parseKeyValueCsv(text: string): CsvParseResult {
     const key = (rec[0] ?? '').trim();
     const value = rec[1] ?? '';
     if (!key) {
-      warnings.push(`Row ${r + 1}: missing key — skipped.`);
+      warnings.push(`Row ${r + 1}: missing key - skipped.`);
       continue;
     }
     if (map.has(key)) {
-      warnings.push(`Row ${r + 1}: duplicate key "${key}" — last value wins.`);
+      warnings.push(`Row ${r + 1}: duplicate key "${key}" - last value wins.`);
     }
     map.set(key, value);
   }

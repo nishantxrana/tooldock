@@ -35,7 +35,7 @@ const FORMATS: { id: Format; label: string; mime: string; ext: string }[] = [
 /** Secret values cannot be read back from ADO; represented as a placeholder. */
 const SECRET_PLACEHOLDER = '';
 
-/** Text formats only — xlsx is binary and built separately. */
+/** Text formats only - xlsx is binary and built separately. */
 function buildOutput(group: VariableGroup, format: Exclude<Format, 'xlsx'>): string {
   const entries = variableEntries(group);
   if (format === 'csv') {
@@ -46,7 +46,7 @@ function buildOutput(group: VariableGroup, format: Exclude<Format, 'xlsx'>): str
   if (format === 'txt') {
     return entries.map((e) => `${e.key}=${e.value ?? SECRET_PLACEHOLDER}`).join('\n');
   }
-  // JSON — Azure DevOps compatible `variables` structure.
+  // JSON - Azure DevOps compatible `variables` structure.
   const variables: Record<string, { value: string; isSecret?: boolean }> = {};
   for (const e of entries) {
     variables[e.key] = e.isSecret
@@ -56,7 +56,7 @@ function buildOutput(group: VariableGroup, format: Exclude<Format, 'xlsx'>): str
   return JSON.stringify({ name: group.name, type: group.type, variables }, null, 2);
 }
 
-/** Tool 4 — export a variable group as CSV / JSON / TXT / XLSX. */
+/** Tool 4 - export a variable group as CSV / JSON / TXT / XLSX. */
 export function ExportGroup() {
   const organization = useSessionStore((s) => s.organization);
   const [group, setGroup] = useState<VariableGroup | null>(null);
@@ -126,7 +126,7 @@ export function ExportGroup() {
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <FileSpreadsheet className="h-5 w-5" />
                     <span>
-                      <span className="font-medium text-foreground">{exportFilename}.xlsx</span> —
+                      <span className="font-medium text-foreground">{exportFilename}.xlsx</span> -
                       sheet "{group.name}", {variableCount(group)} variables.
                     </span>
                   </div>

@@ -17,7 +17,7 @@ import type { VariableGroup } from '@/types/ado';
 import { toast } from 'sonner';
 
 // ---------------------------------------------------------------------------
-// Color palette — one per group slot (up to 8)
+// Color palette - one per group slot (up to 8)
 // ---------------------------------------------------------------------------
 
 const GROUP_PALETTE = [
@@ -105,7 +105,7 @@ const CHIP_INACTIVE =
 
 function CellValue({ status, value }: { status: string; value: string }) {
   if (status === 'missing')
-    return <span className="text-muted-foreground/25 select-none text-xs">—</span>;
+    return <span className="text-muted-foreground/25 select-none text-xs">-</span>;
   if (status === 'secret')
     return (
       <span className="inline-flex items-center gap-1 text-muted-foreground/50 italic text-xs">
@@ -374,7 +374,7 @@ export function MultiGroupCompare() {
               </div>
             )}
 
-            {/* Toolbar — only when ≥2 groups */}
+            {/* Toolbar - only when ≥2 groups */}
             {canCompare && result && (
               <div className="flex flex-wrap items-center gap-2">
                 {/* Status chips */}
@@ -438,7 +438,7 @@ export function MultiGroupCompare() {
                   <span className="h-3 w-px bg-border/50" />
                   <span className="flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-warning" />
-                    Conflict — values differ between groups
+                    Conflict - values differ between groups
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />

@@ -1,20 +1,20 @@
 /**
- * Vercel Edge Middleware — runs before the /ado/* and /vsrm/* proxy rewrites.
+ * Vercel Edge Middleware - runs before the /ado/* and /vsrm/* proxy rewrites.
  *
  * Three protections:
- *  1. Method allow-list — only GET and PUT pass through (GET = all reads,
+ *  1. Method allow-list - only GET and PUT pass through (GET = all reads,
  *     PUT = CSV Import variable group update).
- *  2. Origin / Referer check — rejects requests whose Origin or Referer
+ *  2. Origin / Referer check - rejects requests whose Origin or Referer
  *     header does not match the app's own domain. Skipped when
  *     ALLOWED_ORIGIN is not set (local dev).
  *
  * Rate limiting is not available on Vercel's free tier without an external
  * store (e.g. Upstash Redis). Add it separately if needed.
  *
- * ALLOWED_ORIGIN  — set in Vercel dashboard → Settings → Environment
+ * ALLOWED_ORIGIN  - set in Vercel dashboard → Settings → Environment
  *                   Variables. Primary custom domain, e.g.
  *                   https://tooldock.notbatman.me
- * VERCEL_URL      — injected automatically by Vercel; covers the
+ * VERCEL_URL      - injected automatically by Vercel; covers the
  *                   .vercel.app deployment URL as a fallback so both domains
  *                   work without extra config.
  */
@@ -36,14 +36,12 @@ function getAllowedOrigins(): string[] {
 
 function isOriginAllowed(request: Request): boolean {
   const allowed = getAllowedOrigins();
-  if (allowed.length === 0) return true; // dev — no check
+  if (allowed.length === 0) return true; // dev - no check
 
   const origin = request.headers.get('origin') ?? '';
   const referer = request.headers.get('referer') ?? '';
 
-  return allowed.some(
-    (o) => origin.startsWith(o) || referer.startsWith(o),
-  );
+  return allowed.some((o) => origin.startsWith(o) || referer.startsWith(o));
 }
 
 export default function middleware(request: Request): Response | void {

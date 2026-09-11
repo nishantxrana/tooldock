@@ -41,7 +41,7 @@ export async function getVariableGroup(
 
 /**
  * Update a variable group's variables. The update endpoint is org-scoped and
- * REQUIRES the full body — name, type, description, the complete variables map,
+ * REQUIRES the full body - name, type, description, the complete variables map,
  * and variableGroupProjectReferences (omitting the references fails with
  * "Project information name is not valid for variable group", and would
  * otherwise un-share the group).

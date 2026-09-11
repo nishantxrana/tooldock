@@ -1,5 +1,5 @@
 /**
- * App-wide constants. No secrets here — the PAT lives only in the in-memory
+ * App-wide constants. No secrets here - the PAT lives only in the in-memory
  * session store (see src/store/sessionStore.ts).
  */
 

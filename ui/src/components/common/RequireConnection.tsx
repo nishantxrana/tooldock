@@ -23,7 +23,7 @@ function ConnectGate() {
  * - Reaching it via an in-app click (PUSH/REPLACE) shows the connect form
  *   inline, in place, on the same URL: no navigation, sidebar/header stay put.
  *   Once `connect()` flips isConnected, this re-renders and shows `children`
- *   automatically — onConnected has nothing else to do.
+ *   automatically - onConnected has nothing else to do.
  */
 export function RequireConnection({ children }: { children: ReactNode }) {
   const isConnected = useSessionStore((s) => s.isConnected);

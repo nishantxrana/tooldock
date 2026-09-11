@@ -90,7 +90,7 @@ export interface ReleaseDefinition {
 
 /**
  * Body for PUT .../variablegroups/{groupId}. The full variable map, name, type,
- * description AND variableGroupProjectReferences must be sent — omitting the
+ * description AND variableGroupProjectReferences must be sent - omitting the
  * project references un-shares the group.
  */
 export interface VariableGroupUpdateBody {

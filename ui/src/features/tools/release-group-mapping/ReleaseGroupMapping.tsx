@@ -41,7 +41,7 @@ export function ReleaseGroupMapping() {
       for (const vg of sortedGroups) {
         const usages = mapping.get(vg.id) ?? [];
         if (usages.length === 0) {
-          rows.push({ groupName: vg.name, pipelineName: '—', stageName: '—', scope: 'Not used' });
+          rows.push({ groupName: vg.name, pipelineName: '-', stageName: '-', scope: 'Not used' });
         } else {
           const sorted = [...usages].sort((a, b) => a.pipelineName.localeCompare(b.pipelineName));
           for (const u of sorted) {
@@ -58,7 +58,7 @@ export function ReleaseGroupMapping() {
       const orgPart = safeFilename(organization ?? '');
       const projectPart = safeFilename(project?.name ?? '');
       const filename = `${orgPart}-${projectPart}-release-pipeline-mapping.xlsx`;
-      const title = `Release Pipeline Mapping — ${organization} / ${project?.name}`;
+      const title = `Release Pipeline Mapping - ${organization} / ${project?.name}`;
       await exportReleaseMappingXlsx(filename, title, rows);
     } finally {
       setExporting(false);
@@ -181,7 +181,7 @@ export function ReleaseGroupMapping() {
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <Download className="h-5 w-5 flex-shrink-0" />
                       <span>
-                        All variable groups × all release pipelines — one flat sheet, easy to filter
+                        All variable groups × all release pipelines - one flat sheet, easy to filter
                         in Excel.
                       </span>
                     </div>

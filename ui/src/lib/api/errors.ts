@@ -1,8 +1,8 @@
 /** Typed error for Azure DevOps API failures, with actionable messaging. */
 export type AdoErrorKind =
-  | 'unauthorized' // 401 — PAT invalid/expired
-  | 'forbidden' // 403 — insufficient scope/permission
-  | 'not-found' // 404 — org/project/group missing
+  | 'unauthorized' // 401 - PAT invalid/expired
+  | 'forbidden' // 403 - insufficient scope/permission
+  | 'not-found' // 404 - org/project/group missing
   | 'rate-limit' // 429
   | 'network' // offline / DNS / proxy unreachable
   | 'non-json' // got HTML (usually a sign-in redirect / wrong org)

@@ -50,7 +50,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
       <div className="ml-auto flex items-center gap-2">
         {isConnected ? (
           <>
-            {/* Data controls — project + refresh */}
+            {/* Data controls - project + refresh */}
             <div className="flex items-center gap-1">
               <ProjectSelector />
               <Tooltip>
@@ -79,7 +79,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
 
             <div className="h-5 w-px bg-border" />
 
-            {/* Destructive — kept visually separate */}
+            {/* Destructive - kept visually separate */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button

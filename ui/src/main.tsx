@@ -19,7 +19,7 @@ import './index.css';
       useSessionStore.getState().setPatPersisted(true, vault.lockedAt);
     }
   } catch {
-    // IDB unavailable (private browsing, browser restriction) — silently skip.
+    // IDB unavailable (private browsing, browser restriction) - silently skip.
   }
 
   ReactDOM.createRoot(document.getElementById('root')!).render(

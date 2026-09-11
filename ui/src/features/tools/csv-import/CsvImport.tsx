@@ -22,7 +22,7 @@ import { useSessionStore } from '@/store/sessionStore';
 import type { VariableGroup } from '@/types/ado';
 
 /**
- * Tool 3 — import variables from a CSV into a variable group. Shows a full
+ * Tool 3 - import variables from a CSV into a variable group. Shows a full
  * per-key diff and requires explicit confirmation before writing. Existing
  * variables not present in the CSV are preserved.
  */
@@ -63,7 +63,7 @@ export function CsvImport() {
             plan.counts.overwrite > 0 && `${plan.counts.overwrite} updated`,
           ].filter(Boolean);
           toast.success(
-            `Imported into "${updated.name}" — ${parts.length > 0 ? parts.join(', ') : 'no changes'}`,
+            `Imported into "${updated.name}" - ${parts.length > 0 ? parts.join(', ') : 'no changes'}`,
           );
         },
         onError: (err) => {
@@ -78,7 +78,7 @@ export function CsvImport() {
     );
   };
 
-  // Only changed rows shown in the confirm dialog — same rows are noise there.
+  // Only changed rows shown in the confirm dialog - same rows are noise there.
   const dialogRows = useMemo(
     () => (plan ? plan.rows.filter((r) => r.status !== 'same') : []),
     [plan],
@@ -180,7 +180,7 @@ export function CsvImport() {
             >
               {writeDenied && (
                 <Callout variant="warning" className="mb-3">
-                  Import is disabled — your PAT lacks the Variable Groups <strong>manage</strong>{' '}
+                  Import is disabled - your PAT lacks the Variable Groups <strong>manage</strong>{' '}
                   scope. You can still preview changes below.
                 </Callout>
               )}
@@ -220,7 +220,7 @@ export function CsvImport() {
               <Badge variant="success">{plan.counts.new} new</Badge>
               <Badge variant="secondary">{plan.counts.same} unchanged</Badge>
             </div>
-            {/* Only show changed rows in the dialog — same rows add noise here. */}
+            {/* Only show changed rows in the dialog - same rows add noise here. */}
             {dialogRows.length > 0 && <ImportPreviewTable rows={dialogRows} />}
           </div>
         )}

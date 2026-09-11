@@ -24,7 +24,7 @@ import { MultiGroupCompare } from './multi-group-compare/MultiGroupCompare';
 
 /**
  * The single source of truth for tools. The sidebar and routes are generated
- * from this array — adding a tool means adding one entry here plus its feature
+ * from this array - adding a tool means adding one entry here plus its feature
  * component. Built to scale to dozens of tools.
  */
 export const TOOLS: readonly ToolDefinition[] = [
@@ -52,7 +52,7 @@ export const TOOLS: readonly ToolDefinition[] = [
     id: 'variable-group-diff',
     title: 'Variable Group Diff',
     description:
-      'Compare two variable groups key by key — spot changed, missing, and secret values.',
+      'Compare two variable groups key by key - spot changed, missing, and secret values.',
     icon: Diff,
     group: 'Variable Groups',
     path: '/tools/variable-group-diff',
@@ -63,7 +63,7 @@ export const TOOLS: readonly ToolDefinition[] = [
     id: 'multi-group-compare',
     title: 'Multi-Group Compare',
     description:
-      'Compare 2–8 variable groups side by side — spot conflicts, missing keys, and secrets across all environments at once.',
+      'Compare 2–8 variable groups side by side - spot conflicts, missing keys, and secrets across all environments at once.',
     icon: GitCompareArrows,
     group: 'Variable Groups',
     path: '/tools/multi-group-compare',

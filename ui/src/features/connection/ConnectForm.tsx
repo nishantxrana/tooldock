@@ -95,17 +95,17 @@ export function ConnectForm({ title = 'Connect to Azure DevOps', onConnected }: 
               {showPat ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
-          {/* Security note — inline, unobtrusive */}
+          {/* Security note - inline, unobtrusive */}
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Lock className="h-3 w-3 shrink-0" />
-            Kept in memory only — never stored, cleared on refresh
+            Kept in memory only - never stored, cleared on refresh
           </p>
         </div>
       </div>
 
       {error != null && <ErrorBanner error={error} />}
 
-      {/* Submit — stable, never moves */}
+      {/* Submit - stable, never moves */}
       <div className="space-y-2">
         <Button className="w-full h-10" disabled={!canSubmit} onClick={handleConnect}>
           {validating && <Loader2 className="animate-spin" />}
@@ -116,7 +116,7 @@ export function ConnectForm({ title = 'Connect to Azure DevOps', onConnected }: 
         </p>
       </div>
 
-      {/* PAT scopes — below the fold, expands downward, never disrupts the form */}
+      {/* PAT scopes - below the fold, expands downward, never disrupts the form */}
       <div className="border-t border-border pt-4">
         <button
           type="button"

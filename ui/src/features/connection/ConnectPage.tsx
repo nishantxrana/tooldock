@@ -7,7 +7,7 @@ export function ConnectPage() {
   const isConnected = useSessionStore((s) => s.isConnected);
   const navigate = useNavigate();
 
-  // Already connected — no need to be here
+  // Already connected - no need to be here
   if (isConnected) return <Navigate to="/" replace />;
 
   return (

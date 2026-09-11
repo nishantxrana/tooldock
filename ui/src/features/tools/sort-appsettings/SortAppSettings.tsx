@@ -14,7 +14,7 @@ import {
   type AppSettingsFormat,
 } from '@/lib/utils/appSettings';
 
-/** Tool 6 — paste App Settings (one-line or multiline) and get them sorted alphabetically. */
+/** Tool 6 - paste App Settings (one-line or multiline) and get them sorted alphabetically. */
 export function SortAppSettings() {
   const [input, setInput] = useState('');
   const [oneLine, setOneLine] = useState(true);

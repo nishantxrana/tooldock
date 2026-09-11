@@ -7,7 +7,7 @@ import { useProjects } from '@/lib/hooks/useProjects';
 
 /**
  * Gate for tools that need a selected project.
- * When no project is chosen, renders an inline picker instead of the tool —
+ * When no project is chosen, renders an inline picker instead of the tool -
  * so the user never has to hunt for the header dropdown.
  */
 export function RequireProject({ children }: { children: ReactNode }) {
@@ -36,9 +36,14 @@ export function RequireProject({ children }: { children: ReactNode }) {
         <div className="space-y-1.5">
           <h2 className="text-sm font-semibold tracking-tight">Select a project</h2>
           <p className="text-xs text-muted-foreground/70 leading-relaxed">
-            {organization
-              ? <>Connected to <span className="font-medium text-foreground">{organization}</span>. Pick a project to unlock this tool.</>
-              : 'Pick a project to unlock this tool.'}
+            {organization ? (
+              <>
+                Connected to <span className="font-medium text-foreground">{organization}</span>.
+                Pick a project to unlock this tool.
+              </>
+            ) : (
+              'Pick a project to unlock this tool.'
+            )}
           </p>
         </div>
 
@@ -59,7 +64,9 @@ export function RequireProject({ children }: { children: ReactNode }) {
         )}
 
         {!isLoading && projects && projects.length === 0 && (
-          <p className="text-xs text-muted-foreground/60">No projects found in this organization.</p>
+          <p className="text-xs text-muted-foreground/60">
+            No projects found in this organization.
+          </p>
         )}
       </div>
     </div>

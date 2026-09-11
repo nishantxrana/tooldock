@@ -20,7 +20,7 @@ import { useVariableGroups } from '@/lib/hooks/useVariableGroups';
 import type { VariableGroup } from '@/types/ado';
 
 /**
- * Tool 1 — generate the App Service Deploy "App settings" string from one or
+ * Tool 1 - generate the App Service Deploy "App settings" string from one or
  * more variable groups. Keys are merged and deduplicated; duplicates are
  * surfaced as a warning with the source group listed for each conflict.
  */
@@ -31,7 +31,7 @@ export function GenerateAppSettings() {
 
   const { data: allGroups, isLoading, isError, error, refetch } = useVariableGroups();
 
-  // Groups not yet added — available for selection
+  // Groups not yet added - available for selection
   const addedIds = useMemo(() => new Set(groups.map((g) => g.id)), [groups]);
   const available = useMemo(
     () => (allGroups ?? []).filter((g) => !addedIds.has(g.id)),
@@ -109,7 +109,7 @@ export function GenerateAppSettings() {
                 </ul>
               )}
 
-              {/* Add picker — hidden when all groups added */}
+              {/* Add picker - hidden when all groups added */}
               {available.length > 0 ? (
                 <Combobox
                   key={selectKey}
@@ -139,7 +139,7 @@ export function GenerateAppSettings() {
             <div className="space-y-1.5">
               <p className="font-medium">
                 {merged.duplicates.length} key{merged.duplicates.length === 1 ? '' : 's'} appear in
-                multiple groups — the first group's key is used.
+                multiple groups - the first group's key is used.
               </p>
               <ul className="space-y-0.5 font-mono text-xs">
                 {merged.duplicates.map(({ key, groups: gs }) => (
@@ -160,7 +160,7 @@ export function GenerateAppSettings() {
             title={
               groups.length === 1
                 ? 'App settings'
-                : `App settings — ${groups.length} groups, ${merged.keys.length} unique keys`
+                : `App settings - ${groups.length} groups, ${merged.keys.length} unique keys`
             }
             value={output}
             downloadName={downloadName}

@@ -72,7 +72,7 @@ function ValueCell({
   secret: boolean;
   absent?: boolean;
 }) {
-  if (absent) return <span className="text-muted-foreground/25 select-none text-xs">—</span>;
+  if (absent) return <span className="text-muted-foreground/25 select-none text-xs">-</span>;
   if (secret)
     return (
       <span className="inline-flex items-center gap-1 text-muted-foreground/50 italic text-xs">
@@ -89,7 +89,7 @@ function ValueCell({
 }
 
 // ---------------------------------------------------------------------------
-// Diff table (no Status column — encoded via border + dot)
+// Diff table (no Status column - encoded via border + dot)
 // ---------------------------------------------------------------------------
 
 function DiffTable({
@@ -368,7 +368,7 @@ export function VariableGroupDiff() {
               </div>
             )}
 
-            {/* Toolbar: filter + status chips + export — only after both groups selected */}
+            {/* Toolbar: filter + status chips + export - only after both groups selected */}
             {canCompare && result && (
               <div className="flex flex-wrap items-center gap-2">
                 {/* Overall verdict pill */}

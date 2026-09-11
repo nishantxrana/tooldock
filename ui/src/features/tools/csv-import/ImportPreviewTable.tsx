@@ -20,7 +20,7 @@ const STATUS_META: Record<ImportStatus, { label: string; variant: BadgeProps['va
 
 function displayCurrent(row: ImportRow): string {
   if (row.currentIsSecret) return '(secret)';
-  if (row.current === null) return '—';
+  if (row.current === null) return '-';
   if (row.current === '') return '(empty)';
   return row.current;
 }

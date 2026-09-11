@@ -5,7 +5,7 @@ const INVALID_SHEET_CHARS = /[:\\/?*[\]]/g;
 
 /**
  * The OOXML/xlsx spec caps sheet names at 31 chars. This isn't just an Excel
- * UI restriction — the writer itself throws if given a longer name, so this
+ * UI restriction - the writer itself throws if given a longer name, so this
  * can't be raised without switching libraries. The full, untruncated name is
  * never actually lost though: it's written into the sheet content itself (see
  * buildKeyValueSheet) and it's also what the downloaded filename is built from.
@@ -124,7 +124,7 @@ async function downloadWorkbook(workbook: ExcelJS.Workbook, filename: string): P
 
 /**
  * Build a single-sheet Key/Value workbook and trigger its download. ExcelJS
- * is dynamically imported so it only loads when a user actually exports —
+ * is dynamically imported so it only loads when a user actually exports -
  * it doesn't bloat the main bundle.
  */
 export async function exportKeyValueXlsx(
@@ -134,7 +134,7 @@ export async function exportKeyValueXlsx(
   _options: { titleRow?: boolean } = {},
 ): Promise<void> {
   const mod = await import('exceljs');
-  // The browser bundle (exceljs.min.js) is UMD — Workbook may be on .default
+  // The browser bundle (exceljs.min.js) is UMD - Workbook may be on .default
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { Workbook } = ((mod as any).default ?? mod) as typeof import('exceljs');
   const workbook = new Workbook();
@@ -159,13 +159,13 @@ export async function exportReleaseMappingXlsx(
   rows: ReleaseMappingRow[],
 ): Promise<void> {
   const mod = await import('exceljs');
-  // The browser bundle (exceljs.min.js) is UMD — Workbook may be on .default
+  // The browser bundle (exceljs.min.js) is UMD - Workbook may be on .default
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { Workbook } = ((mod as any).default ?? mod) as typeof import('exceljs');
   const workbook = new Workbook();
   const ws = workbook.addWorksheet('Pipeline Mapping');
 
-  // Title row — merge across 4 columns
+  // Title row - merge across 4 columns
   ws.mergeCells('A1:D1');
   const titleCell = ws.getCell('A1');
   titleCell.value = title;
@@ -226,7 +226,7 @@ export async function exportVariableGroupWorkbook(
   sheets: XlsxSheetInput[],
 ): Promise<void> {
   const mod = await import('exceljs');
-  // The browser bundle (exceljs.min.js) is UMD — Workbook may be on .default
+  // The browser bundle (exceljs.min.js) is UMD - Workbook may be on .default
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { Workbook } = ((mod as any).default ?? mod) as typeof import('exceljs');
   const workbook = new Workbook();
@@ -286,7 +286,7 @@ export async function exportDiffXlsx(
   // Title row (merge A1:D1)
   ws.mergeCells('A1:D1');
   const titleCell = ws.getCell('A1');
-  titleCell.value = `Variable Group Diff — ${leftName}  vs  ${rightName}`;
+  titleCell.value = `Variable Group Diff - ${leftName}  vs  ${rightName}`;
   titleCell.fill = NAVY;
   titleCell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
   titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -367,7 +367,7 @@ export async function exportMultiGroupXlsx(
   // Title row
   ws.mergeCells(1, 1, 1, totalCols);
   const titleCell = ws.getCell(1, 1);
-  titleCell.value = `Variable Group Compare — ${groupNames.join('  ·  ')}`;
+  titleCell.value = `Variable Group Compare - ${groupNames.join('  ·  ')}`;
   titleCell.fill = NAVY;
   titleCell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
   titleCell.alignment = { horizontal: 'center', vertical: 'middle' };

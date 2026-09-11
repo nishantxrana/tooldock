@@ -71,7 +71,7 @@ function extractVars(def: ReleaseDefinition, scopeId: string): KV[] {
 function buildOutput(vars: KV[], format: Exclude<Format, 'xlsx'>, scopeLabel: string): string {
   if (format === 'csv') return toKeyValueCsv(vars.map((v) => ({ key: v.key, value: v.value })));
   if (format === 'txt') return vars.map((v) => `${v.key}=${v.value}`).join('\n');
-  // JSON — ADO-compatible variables object, ready to paste into a new variable group
+  // JSON - ADO-compatible variables object, ready to paste into a new variable group
   const variables: Record<string, { value: string; isSecret?: boolean }> = {};
   for (const v of vars) {
     variables[v.key] = v.isSecret ? { value: '', isSecret: true } : { value: v.value };
@@ -210,7 +210,7 @@ export function ExportReleaseVars() {
               </div>
             )}
 
-            {/* Scope picker — shown after a pipeline is selected */}
+            {/* Scope picker - shown after a pipeline is selected */}
             {defLoading && <Skeleton className="h-9 w-full" />}
             {defError && <ErrorBanner error={defErr} onRetry={() => defRefetch()} />}
             {def && scopes.length > 0 && (
@@ -266,7 +266,7 @@ export function ExportReleaseVars() {
               <EmptyState
                 icon={GitBranch}
                 title="No inline variables"
-                description="This scope has no inline variables. Variables may come entirely from attached variable groups — use Release Pipeline Mapping to see which groups are linked."
+                description="This scope has no inline variables. Variables may come entirely from attached variable groups - use Release Pipeline Mapping to see which groups are linked."
               />
             ) : format === 'xlsx' ? (
               <SectionCard
@@ -277,7 +277,7 @@ export function ExportReleaseVars() {
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <FileSpreadsheet className="h-5 w-5" />
                     <span>
-                      <span className="font-medium text-foreground">{exportFilename}.xlsx</span> —{' '}
+                      <span className="font-medium text-foreground">{exportFilename}.xlsx</span> -{' '}
                       {vars.length} variable{vars.length === 1 ? '' : 's'}.
                     </span>
                   </div>

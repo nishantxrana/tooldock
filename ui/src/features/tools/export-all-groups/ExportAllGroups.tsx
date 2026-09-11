@@ -20,7 +20,7 @@ import { useSessionStore } from '@/store/sessionStore';
 /** Secret values cannot be read back from ADO; represented as a placeholder. */
 const SECRET_PLACEHOLDER = '';
 
-/** Tool — export every (or a chosen subset of) a project's variable groups into one multi-sheet XLSX workbook. */
+/** Tool - export every (or a chosen subset of) a project's variable groups into one multi-sheet XLSX workbook. */
 export function ExportAllGroups() {
   const organization = useSessionStore((s) => s.organization);
   const project = useSessionStore((s) => s.selectedProject);
@@ -48,7 +48,7 @@ export function ExportAllGroups() {
     return q ? (groups ?? []).filter((g) => g.name.toLowerCase().includes(q)) : (groups ?? []);
   }, [groups, search]);
 
-  // "Select all" operates on the filtered list — so when searching it only toggles visible items
+  // "Select all" operates on the filtered list - so when searching it only toggles visible items
   const allFilteredSelected = filtered.length > 0 && filtered.every((g) => selected.has(g.id));
 
   const hasSecrets = selectedGroups.some((g) => variableEntries(g).some((e) => e.isSecret));
@@ -197,7 +197,7 @@ export function ExportAllGroups() {
                     <span>Select at least one group to export.</span>
                   ) : (
                     <span>
-                      <span className="font-medium text-foreground">{filename}</span> —{' '}
+                      <span className="font-medium text-foreground">{filename}</span> -{' '}
                       {selected.size} sheet{selected.size === 1 ? '' : 's'}.
                     </span>
                   )}

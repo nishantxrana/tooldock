@@ -13,7 +13,7 @@
   status = 200
   force = true
 
-# Proxy Azure DevOps Release Management API (vsrm subdomain — used by release pipeline tools).
+# Proxy Azure DevOps Release Management API (vsrm subdomain - used by release pipeline tools).
 [[redirects]]
   from = "/vsrm/*"
   to = "https://vsrm.dev.azure.com/:splat"

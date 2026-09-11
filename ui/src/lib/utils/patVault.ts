@@ -91,7 +91,7 @@ export async function unlockPat(): Promise<void> {
     await idbDelete(db, 'key');
     db.close();
   } catch {
-    // Best-effort — if IDB fails here, the data is inaccessible anyway.
+    // Best-effort - if IDB fails here, the data is inaccessible anyway.
   }
 }
 
@@ -114,7 +114,7 @@ export async function loadLockedPat(): Promise<{
     return null;
   }
 
-  // Expired — wipe and return null so caller falls back to in-memory-only mode.
+  // Expired - wipe and return null so caller falls back to in-memory-only mode.
   if (Date.now() - patRecord.lockedAt > EXPIRY_MS) {
     await idbDelete(db, 'pat');
     await idbDelete(db, 'key');
@@ -124,7 +124,7 @@ export async function loadLockedPat(): Promise<{
 
   const keyRecord = await idbGet<KeyRecord>(db, 'key');
   if (!keyRecord) {
-    // Key missing but PAT present — inconsistent state, wipe both.
+    // Key missing but PAT present - inconsistent state, wipe both.
     await idbDelete(db, 'pat');
     db.close();
     return null;

@@ -5,7 +5,7 @@ import { adoRequest } from './client';
 const VSRM_BASE = '/vsrm';
 
 /**
- * List all release definitions in a project (lightweight — IDs and names only).
+ * List all release definitions in a project (lightweight - IDs and names only).
  * GET https://vsrm.dev.azure.com/{org}/{project}/_apis/release/definitions?api-version=7.1
  */
 export async function listReleaseDefinitions(

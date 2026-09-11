@@ -33,7 +33,7 @@ function buildUrl(
   const path = pathSegments
     .map((s) => encodeURIComponent(s))
     .join('/')
-    .replace(/%2F/gi, '/'); // keep intentional slashes readable — segments are pre-split
+    .replace(/%2F/gi, '/'); // keep intentional slashes readable - segments are pre-split
   const url = new URL(`${basePath}/${path}`, window.location.origin);
   if (query) {
     for (const [key, val] of Object.entries(query)) {
