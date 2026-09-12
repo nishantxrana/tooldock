@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ToolDock Architecture Diagrams</title>
+    <style>
+      :root {
+        --paper: #f5f5f5;
+        --ink: #2d3142;
+        --muted: #4f5d75;
+        --soft: #7a8399;
+        --rule: rgba(45, 49, 66, 0.12);
+        --accent: #eb6c36;
+        --accent-tint: rgba(235, 108, 54, 0.1);
+        --link: #2e5aa8;
+        --card: #ffffff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      }
+      .wrap {
+        max-width: 1360px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      .eyebrow {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      h1 {
+        margin: 8px 0 8px;
+        font-size: 36px;
+        font-weight: 500;
+      }
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.45;
+        max-width: 1040px;
+      }
+      nav {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      nav a {
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 12px;
+        text-decoration: none;
+        color: var(--ink);
+        background: var(--card);
+      }
+      section {
+        margin-top: 24px;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        background: var(--card);
+        padding: 16px;
+      }
+      h2 {
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+      .section-note {
+        margin: 0 0 12px;
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+      svg {
+        width: 100%;
+        height: auto;
+        display: block;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        background: var(--paper);
+      }
+      .footer {
+        margin-top: 24px;
+        padding-top: 12px;
+        border-top: 1px solid var(--rule);
+        font-size: 12px;
+        color: var(--soft);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <p class="eyebrow">ToolDock · Architecture Pack</p>
+      <h1>ToolDock Architecture, Flows, and Deployment</h1>
+      <p class="subtitle">
+        These diagrams are derived from the current codebase in <code>ui/</code> (React + Vite SPA, same-origin
+        Azure DevOps proxies, session store + optional encrypted PAT vault). No backend service or database exists
+        in this repository.
+      </p>
+
+      <nav>
+        <a href="#context">System Context</a>
+        <a href="#components">Frontend Component Architecture</a>
+        <a href="#flow">Read/Write Data Flow</a>
+        <a href="#security">Connection + Security Flow</a>
+        <a href="#deploy">Deployment and Runtime Infrastructure</a>
+      </nav>
+
+      <section id="context">
+        <h2>1) High-Level System Context</h2>
+        <p class="section-note">Browser-only SPA calling Azure DevOps through same-origin proxy paths <code>/ado</code> and <code>/vsrm</code>.</p>
+        <svg viewBox="0 0 1280 620" role="img" aria-labelledby="tooldock-context-title tooldock-context-desc">
+          <title id="tooldock-context-title">ToolDock high-level system architecture</title>
+          <desc id="tooldock-context-desc">Architecture showing user browser running ToolDock SPA, proxy paths, and upstream Azure DevOps domains.</desc>
+          <defs>
+            <marker id="ctx-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+            <marker id="ctx-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+            <marker id="ctx-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+          </defs>
+
+          <path d="M 264 256 L 420 256" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#ctx-arrow)"/>
+          <path d="M 620 220 L 776 220" stroke="#2e5aa8" stroke-width="2" fill="none" marker-end="url(#ctx-link)"/>
+          <path d="M 620 292 L 776 292" stroke="#2e5aa8" stroke-width="2" fill="none" marker-end="url(#ctx-link)"/>
+          <path d="M 940 220 L 1096 220" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#ctx-arrow)"/>
+          <path d="M 940 292 L 1096 292" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#ctx-arrow)"/>
+          <path d="M 520 356 L 520 428" stroke="#eb6c36" stroke-width="2" fill="none" stroke-dasharray="6 4" marker-end="url(#ctx-accent)"/>
+
+          <rect x="64" y="196" width="200" height="120" rx="8" fill="#eef3fb" stroke="#2e5aa8"/>
+          <rect x="420" y="160" width="200" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="420" y="268" width="200" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="776" y="160" width="164" height="120" rx="8" fill="#f9fbff" stroke="#2e5aa8"/>
+          <rect x="776" y="268" width="164" height="120" rx="8" fill="#f9fbff" stroke="#2e5aa8"/>
+          <rect x="1096" y="160" width="152" height="120" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+          <rect x="1096" y="268" width="152" height="120" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+          <rect x="416" y="428" width="208" height="120" rx="8" fill="rgba(235,108,54,0.1)" stroke="#eb6c36" stroke-width="1.5"/>
+
+          <text x="164" y="236" fill="#2e5aa8" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">USER</text>
+          <text x="164" y="260" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">Browser Session</text>
+          <text x="164" y="284" fill="#4f5d75" font-size="12" text-anchor="middle">React SPA UI</text>
+
+          <text x="520" y="200" fill="#2d3142" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">PROXY</text>
+          <text x="520" y="224" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">/ado</text>
+          <text x="520" y="248" fill="#4f5d75" font-size="12" text-anchor="middle">Projects + Variable Groups</text>
+
+          <text x="520" y="308" fill="#2d3142" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">PROXY</text>
+          <text x="520" y="332" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">/vsrm</text>
+          <text x="520" y="356" fill="#4f5d75" font-size="12" text-anchor="middle">Release Definitions</text>
+
+          <text x="858" y="220" fill="#2e5aa8" font-size="16" font-weight="600" text-anchor="middle">dev.azure.com</text>
+          <text x="858" y="244" fill="#4f5d75" font-size="12" text-anchor="middle">Core ADO REST APIs</text>
+
+          <text x="858" y="328" fill="#2e5aa8" font-size="16" font-weight="600" text-anchor="middle">vsrm.dev.azure.com</text>
+          <text x="858" y="352" fill="#4f5d75" font-size="12" text-anchor="middle">Release Mgmt APIs</text>
+
+          <text x="1172" y="220" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">Variable Groups</text>
+          <text x="1172" y="244" fill="#4f5d75" font-size="12" text-anchor="middle">Read + one write tool</text>
+
+          <text x="1172" y="328" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">Release Pipelines</text>
+          <text x="1172" y="352" fill="#4f5d75" font-size="12" text-anchor="middle">Definition exports + mapping</text>
+
+          <text x="520" y="468" fill="#eb6c36" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">SECURITY MODEL</text>
+          <text x="520" y="492" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">PAT in memory by default</text>
+          <text x="520" y="516" fill="#4f5d75" font-size="12" text-anchor="middle">Optional AES-GCM vault in IndexedDB</text>
+
+          <line x1="40" y1="572" x2="1240" y2="572" stroke="rgba(45,49,66,0.1)" stroke-width="1"/>
+          <text x="40" y="596" fill="#4f5d75" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LEGEND · Accent: focal security concern · Blue arrows: HTTP/API path · Dashed: optional persistence</text>
+        </svg>
+      </section>
+
+      <section id="components">
+        <h2>2) Frontend Component and Dependency Architecture</h2>
+        <p class="section-note">Router and tools come from a registry; route guards enforce connection and project selection; hooks + API modules wrap Azure DevOps calls.</p>
+        <svg viewBox="0 0 1280 740" role="img" aria-labelledby="tooldock-components-title tooldock-components-desc">
+          <title id="tooldock-components-title">ToolDock frontend component architecture</title>
+          <desc id="tooldock-components-desc">Diagram of React router, tool registry, route guards, state store, query hooks, API layer, and utility modules.</desc>
+          <defs>
+            <marker id="cmp-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+            <marker id="cmp-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+          </defs>
+
+          <path d="M 200 172 L 360 172" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#cmp-arrow)"/>
+          <path d="M 540 172 L 700 172" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#cmp-arrow)"/>
+          <path d="M 880 172 L 1040 172" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#cmp-arrow)"/>
+
+          <path d="M 440 244 L 440 316" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#cmp-arrow)"/>
+          <path d="M 780 244 L 780 316" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#cmp-arrow)"/>
+          <path d="M 1120 244 L 1120 316" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#cmp-arrow)"/>
+
+          <path d="M 440 424 L 440 496" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#cmp-arrow)"/>
+          <path d="M 780 424 L 780 496" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#cmp-arrow)"/>
+          <path d="M 1120 424 L 1120 496" stroke="#2e5aa8" stroke-width="2" fill="none" marker-end="url(#cmp-link)"/>
+
+          <path d="M 560 556 L 664 556 Q 672 556 672 548 L 672 220 Q 672 212 680 212 L 700 212" stroke="#4f5d75" stroke-width="2" fill="none" stroke-dasharray="6 4" marker-end="url(#cmp-arrow)"/>
+
+          <rect x="40" y="112" width="160" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="360" y="112" width="180" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="700" y="112" width="180" height="120" rx="8" fill="rgba(235,108,54,0.1)" stroke="#eb6c36"/>
+          <rect x="1040" y="112" width="200" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+
+          <rect x="340" y="316" width="200" height="108" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+          <rect x="680" y="316" width="200" height="108" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+          <rect x="1020" y="316" width="200" height="108" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+
+          <rect x="320" y="496" width="240" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="660" y="496" width="240" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="1000" y="496" width="240" height="120" rx="8" fill="#eef3fb" stroke="#2e5aa8"/>
+
+          <text x="120" y="148" fill="#2d3142" font-size="12" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">ENTRY</text>
+          <text x="120" y="176" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">main.tsx</text>
+          <text x="120" y="200" fill="#4f5d75" font-size="12" text-anchor="middle">theme + vault restore</text>
+
+          <text x="450" y="148" fill="#2d3142" font-size="12" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">APP SHELL</text>
+          <text x="450" y="176" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">App.tsx / AppShell</text>
+          <text x="450" y="200" fill="#4f5d75" font-size="12" text-anchor="middle">Router + QueryClient + layout</text>
+
+          <text x="790" y="148" fill="#eb6c36" font-size="12" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">REGISTRY DRIVEN</text>
+          <text x="790" y="176" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">router.tsx + TOOLS</text>
+          <text x="790" y="200" fill="#4f5d75" font-size="12" text-anchor="middle">routes generated from registry</text>
+
+          <text x="1140" y="148" fill="#2d3142" font-size="12" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">FEATURES</text>
+          <text x="1140" y="176" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">11 Tool Components</text>
+          <text x="1140" y="200" fill="#4f5d75" font-size="12" text-anchor="middle">Variable / Release / App Settings</text>
+
+          <text x="440" y="352" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle">RequireConnection</text>
+          <text x="440" y="376" fill="#4f5d75" font-size="12" text-anchor="middle">inline ConnectForm gate</text>
+
+          <text x="780" y="352" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle">RequireProject</text>
+          <text x="780" y="376" fill="#4f5d75" font-size="12" text-anchor="middle">selected project gate</text>
+
+          <text x="1120" y="352" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle">Zustand Session Store</text>
+          <text x="1120" y="376" fill="#4f5d75" font-size="12" text-anchor="middle">PAT, org, project, flags</text>
+
+          <text x="440" y="532" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle">TanStack Query Hooks</text>
+          <text x="440" y="556" fill="#4f5d75" font-size="12" text-anchor="middle">useProjects, useVariableGroups,</text>
+          <text x="440" y="576" fill="#4f5d75" font-size="12" text-anchor="middle">useUpdateVariableGroup...</text>
+
+          <text x="780" y="532" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle">API Modules</text>
+          <text x="780" y="556" fill="#4f5d75" font-size="12" text-anchor="middle">client.ts + resource modules</text>
+          <text x="780" y="576" fill="#4f5d75" font-size="12" text-anchor="middle">auth/errors/constants</text>
+
+          <text x="1120" y="532" fill="#2e5aa8" font-size="14" font-weight="600" text-anchor="middle">Utility Layer</text>
+          <text x="1120" y="556" fill="#4f5d75" font-size="12" text-anchor="middle">xlsx, csv, diff, groupCompare,</text>
+          <text x="1120" y="576" fill="#4f5d75" font-size="12" text-anchor="middle">appSettings, patVault, theme</text>
+
+          <line x1="40" y1="696" x2="1240" y2="696" stroke="rgba(45,49,66,0.1)" stroke-width="1"/>
+          <text x="40" y="720" fill="#4f5d75" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LEGEND · Coral: focal architecture mechanism (registry-generated routing)</text>
+        </svg>
+      </section>
+
+      <section id="flow">
+        <h2>3) Request and Data Flow (Read + Write Paths)</h2>
+        <p class="section-note">All network calls use <code>adoRequest</code>; reads dominate. CSV Import is the only write flow and performs GET-authoritative then PUT-full-body update.</p>
+        <svg viewBox="0 0 1280 760" role="img" aria-labelledby="tooldock-flow-title tooldock-flow-desc">
+          <title id="tooldock-flow-title">ToolDock read and write data flow</title>
+          <desc id="tooldock-flow-desc">Flow of connect validation, read-only tools, and CSV import write operation through adoRequest and proxies.</desc>
+          <defs>
+            <marker id="flow-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+            <marker id="flow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+            <marker id="flow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+          </defs>
+
+          <path d="M 188 188 L 320 188" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#flow-arrow)"/>
+          <path d="M 520 188 L 660 188" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#flow-arrow)"/>
+          <path d="M 860 188 L 1000 188" stroke="#2e5aa8" stroke-width="2" fill="none" marker-end="url(#flow-link)"/>
+
+          <path d="M 420 260 L 420 344" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#flow-arrow)"/>
+          <path d="M 760 260 L 760 344" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#flow-arrow)"/>
+          <path d="M 1100 260 L 1100 344" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#flow-arrow)"/>
+
+          <path d="M 420 464 L 420 552" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#flow-arrow)"/>
+          <path d="M 760 464 L 760 552" stroke="#eb6c36" stroke-width="2" fill="none" marker-end="url(#flow-accent)"/>
+          <path d="M 760 648 L 920 648" stroke="#eb6c36" stroke-width="2" fill="none" marker-end="url(#flow-accent)"/>
+
+          <rect x="48" y="128" width="140" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="320" y="128" width="200" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="660" y="128" width="200" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="1000" y="128" width="220" height="120" rx="8" fill="#eef3fb" stroke="#2e5aa8"/>
+
+          <rect x="300" y="344" width="240" height="120" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+          <rect x="660" y="344" width="200" height="120" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+          <rect x="980" y="344" width="240" height="120" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+
+          <rect x="300" y="552" width="240" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="660" y="552" width="200" height="120" rx="8" fill="rgba(235,108,54,0.1)" stroke="#eb6c36"/>
+          <rect x="920" y="588" width="300" height="120" rx="8" fill="rgba(235,108,54,0.1)" stroke="#eb6c36"/>
+
+          <text x="118" y="164" font-size="12" fill="#2d3142" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">INPUT</text>
+          <text x="118" y="188" font-size="16" fill="#2d3142" font-weight="600" text-anchor="middle">ConnectForm</text>
+          <text x="118" y="212" font-size="12" fill="#4f5d75" text-anchor="middle">org + PAT</text>
+
+          <text x="420" y="164" font-size="16" fill="#2d3142" font-weight="600" text-anchor="middle">listProjects()</text>
+          <text x="420" y="188" font-size="12" fill="#4f5d75" text-anchor="middle">PAT validation</text>
+
+          <text x="760" y="164" font-size="16" fill="#2d3142" font-weight="600" text-anchor="middle">adoRequest()</text>
+          <text x="760" y="188" font-size="12" fill="#4f5d75" text-anchor="middle">Authorization: Basic</text>
+
+          <text x="1110" y="164" font-size="16" fill="#2e5aa8" font-weight="600" text-anchor="middle">/ado or /vsrm proxy</text>
+          <text x="1110" y="188" font-size="12" fill="#4f5d75" text-anchor="middle">Vite or host rewrite</text>
+
+          <text x="420" y="384" font-size="16" fill="#2d3142" font-weight="600" text-anchor="middle">Read Tools (10)</text>
+          <text x="420" y="408" font-size="12" fill="#4f5d75" text-anchor="middle">list/get variable groups</text>
+          <text x="420" y="428" font-size="12" fill="#4f5d75" text-anchor="middle">release definition exports</text>
+
+          <text x="760" y="384" font-size="16" fill="#2d3142" font-weight="600" text-anchor="middle">Transform Layer</text>
+          <text x="760" y="408" font-size="12" fill="#4f5d75" text-anchor="middle">diff + compare + format</text>
+
+          <text x="1100" y="384" font-size="16" fill="#2d3142" font-weight="600" text-anchor="middle">Export Outputs</text>
+          <text x="1100" y="408" font-size="12" fill="#4f5d75" text-anchor="middle">CSV / JSON / TXT / XLSX</text>
+
+          <text x="420" y="592" font-size="16" fill="#2d3142" font-weight="600" text-anchor="middle">CSV Import Parser</text>
+          <text x="420" y="616" font-size="12" fill="#4f5d75" text-anchor="middle">overwrite/new/same preview</text>
+
+          <text x="760" y="592" font-size="12" fill="#eb6c36" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">ONLY WRITE PATH</text>
+          <text x="760" y="616" font-size="16" fill="#2d3142" font-weight="600" text-anchor="middle">GET authoritative group</text>
+          <text x="760" y="640" font-size="12" fill="#4f5d75" text-anchor="middle">keep project references</text>
+
+          <text x="1070" y="628" font-size="16" fill="#2d3142" font-weight="600" text-anchor="middle">PUT full variable group body</text>
+          <text x="1070" y="652" font-size="12" fill="#4f5d75" text-anchor="middle">/{org}/_apis/distributedtask/variablegroups/{id}</text>
+          <text x="1070" y="676" font-size="12" fill="#4f5d75" text-anchor="middle">on 401/403 mark variableGroupsWritable=false</text>
+
+          <line x1="40" y1="728" x2="1240" y2="728" stroke="rgba(45,49,66,0.1)" stroke-width="1"/>
+          <text x="40" y="752" fill="#4f5d75" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LEGEND · Coral path: CSV Import write/update path · Most other tools are read + export</text>
+        </svg>
+      </section>
+
+      <section id="security">
+        <h2>4) Connection, Session, and Security Flow</h2>
+        <p class="section-note">Route-level connection gate + project gate, with default memory-only token handling and opt-in encrypted persistence.</p>
+        <svg viewBox="0 0 1280 760" role="img" aria-labelledby="tooldock-security-title tooldock-security-desc">
+          <title id="tooldock-security-title">ToolDock security and session flow</title>
+          <desc id="tooldock-security-desc">Flowchart for startup, optional PAT vault restore, route guards, and middleware request filtering.</desc>
+          <defs>
+            <marker id="sec-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+            <marker id="sec-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+          </defs>
+
+          <path d="M 640 112 L 640 188" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#sec-arrow)"/>
+          <path d="M 640 292 L 640 368" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#sec-arrow)"/>
+          <path d="M 640 472 L 640 548" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#sec-arrow)"/>
+          <path d="M 640 652 L 640 700" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#sec-arrow)"/>
+
+          <path d="M 744 240 L 920 240" stroke="#eb6c36" stroke-width="2" fill="none" marker-end="url(#sec-accent)"/>
+          <path d="M 920 240 L 920 380" stroke="#eb6c36" stroke-width="2" fill="none" marker-end="url(#sec-accent)"/>
+          <path d="M 920 380 L 744 380" stroke="#eb6c36" stroke-width="2" fill="none" marker-end="url(#sec-accent)"/>
+
+          <path d="M 536 420 L 360 420" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#sec-arrow)"/>
+          <path d="M 360 420 L 360 560" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#sec-arrow)"/>
+          <path d="M 360 560 L 536 560" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#sec-arrow)"/>
+
+          <rect x="540" y="52" width="200" height="60" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="520" y="188" width="240" height="104" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="520" y="368" width="240" height="104" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="520" y="548" width="240" height="104" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="520" y="700" width="240" height="48" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+
+          <rect x="840" y="188" width="320" height="104" rx="8" fill="rgba(235,108,54,0.1)" stroke="#eb6c36"/>
+          <rect x="840" y="328" width="320" height="104" rx="8" fill="rgba(235,108,54,0.1)" stroke="#eb6c36"/>
+
+          <rect x="120" y="368" width="240" height="104" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+          <rect x="120" y="508" width="240" height="104" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+
+          <text x="640" y="88" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">App startup (main.tsx)</text>
+
+          <text x="640" y="220" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">Apply saved theme</text>
+          <text x="640" y="244" fill="#4f5d75" font-size="12" text-anchor="middle">then try loadLockedPat()</text>
+
+          <text x="640" y="400" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">RequireConnection gate</text>
+          <text x="640" y="424" fill="#4f5d75" font-size="12" text-anchor="middle">POP navigation -> Home</text>
+          <text x="640" y="444" fill="#4f5d75" font-size="12" text-anchor="middle">PUSH/REPLACE -> inline ConnectForm</text>
+
+          <text x="640" y="580" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">RequireProject gate</text>
+          <text x="640" y="604" fill="#4f5d75" font-size="12" text-anchor="middle">no selected project => inline picker</text>
+          <text x="640" y="624" fill="#4f5d75" font-size="12" text-anchor="middle">project selected => render tool</text>
+
+          <text x="640" y="730" fill="#4f5d75" font-size="12" text-anchor="middle">Session store holds PAT/org/project flags in runtime state</text>
+
+          <text x="1000" y="220" fill="#eb6c36" font-size="12" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">OPT-IN PERSISTENCE</text>
+          <text x="1000" y="244" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">PersistButton lockPat()</text>
+          <text x="1000" y="268" fill="#4f5d75" font-size="12" text-anchor="middle">AES-GCM-256, non-extractable key, IndexedDB</text>
+
+          <text x="1000" y="360" fill="#eb6c36" font-size="12" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">VAULT LIFECYCLE</text>
+          <text x="1000" y="384" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">30-minute rolling window</text>
+          <text x="1000" y="408" fill="#4f5d75" font-size="12" text-anchor="middle">unlock/disconnect/expiry => wipe key + ciphertext</text>
+
+          <text x="240" y="400" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">Vercel Edge Middleware</text>
+          <text x="240" y="424" fill="#4f5d75" font-size="12" text-anchor="middle">allow GET/PUT/OPTIONS</text>
+          <text x="240" y="444" fill="#4f5d75" font-size="12" text-anchor="middle">Origin/Referer match check</text>
+
+          <text x="240" y="540" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">Proxy hardening</text>
+          <text x="240" y="564" fill="#4f5d75" font-size="12" text-anchor="middle">strip cookies before forwarding</text>
+          <text x="240" y="584" fill="#4f5d75" font-size="12" text-anchor="middle">avoid leaking Authorization in logs</text>
+
+          <line x1="40" y1="748" x2="1240" y2="748" stroke="rgba(45,49,66,0.1)" stroke-width="1"/>
+          <text x="40" y="756" fill="#4f5d75" font-size="0"> </text>
+        </svg>
+      </section>
+
+      <section id="deploy">
+        <h2>5) Deployment and Runtime Infrastructure</h2>
+        <p class="section-note">Single frontend artifact (<code>dist/</code>) with host-level rewrites; no server app in repo. Vercel adds edge middleware checks before proxy rewrites.</p>
+        <svg viewBox="0 0 1280 700" role="img" aria-labelledby="tooldock-deploy-title tooldock-deploy-desc">
+          <title id="tooldock-deploy-title">ToolDock deployment and infrastructure architecture</title>
+          <desc id="tooldock-deploy-desc">Build and deployment flow from source to static hosting and runtime proxy rules for Azure DevOps access.</desc>
+          <defs>
+            <marker id="dep-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+            <marker id="dep-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+          </defs>
+
+          <path d="M 220 160 L 380 160" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#dep-arrow)"/>
+          <path d="M 560 160 L 720 160" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#dep-arrow)"/>
+          <path d="M 900 160 L 1060 160" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#dep-arrow)"/>
+
+          <path d="M 460 232 L 460 324" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#dep-arrow)"/>
+          <path d="M 800 232 L 800 324" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#dep-arrow)"/>
+          <path d="M 1140 232 L 1140 324" stroke="#2e5aa8" stroke-width="2" fill="none" marker-end="url(#dep-link)"/>
+
+          <path d="M 460 444 L 460 536" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#dep-arrow)"/>
+          <path d="M 800 444 L 800 536" stroke="#4f5d75" stroke-width="2" fill="none" marker-end="url(#dep-arrow)"/>
+          <path d="M 1140 444 L 1140 536" stroke="#2e5aa8" stroke-width="2" fill="none" marker-end="url(#dep-link)"/>
+
+          <rect x="40" y="100" width="180" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="380" y="100" width="180" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="720" y="100" width="180" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="1060" y="100" width="180" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+
+          <rect x="340" y="324" width="240" height="120" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+          <rect x="680" y="324" width="240" height="120" rx="8" fill="#f7f7f7" stroke="#4f5d75"/>
+          <rect x="1000" y="324" width="240" height="120" rx="8" fill="#eef3fb" stroke="#2e5aa8"/>
+
+          <rect x="320" y="536" width="280" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="660" y="536" width="280" height="120" rx="8" fill="#ffffff" stroke="#2d3142"/>
+          <rect x="1000" y="536" width="240" height="120" rx="8" fill="#eef3fb" stroke="#2e5aa8"/>
+
+          <text x="130" y="136" fill="#2d3142" font-size="12" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">SOURCE</text>
+          <text x="130" y="160" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">ui/src</text>
+          <text x="130" y="184" fill="#4f5d75" font-size="12" text-anchor="middle">React + TypeScript</text>
+
+          <text x="470" y="160" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">npm run build</text>
+          <text x="470" y="184" fill="#4f5d75" font-size="12" text-anchor="middle">tsc -b + vite build</text>
+
+          <text x="810" y="160" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">dist/ static assets</text>
+          <text x="810" y="184" fill="#4f5d75" font-size="12" text-anchor="middle">single SPA artifact</text>
+
+          <text x="1150" y="160" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">Hosting platform</text>
+          <text x="1150" y="184" fill="#4f5d75" font-size="12" text-anchor="middle">Vercel / Netlify / nginx</text>
+
+          <text x="460" y="364" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">Rewrite rules</text>
+          <text x="460" y="388" fill="#4f5d75" font-size="12" text-anchor="middle">/ado/* -> dev.azure.com/*</text>
+          <text x="460" y="408" fill="#4f5d75" font-size="12" text-anchor="middle">/vsrm/* -> vsrm.dev.azure.com/*</text>
+
+          <text x="800" y="364" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">SPA fallback</text>
+          <text x="800" y="388" fill="#4f5d75" font-size="12" text-anchor="middle">non-proxy paths -> index.html</text>
+          <text x="800" y="408" fill="#4f5d75" font-size="12" text-anchor="middle">proxy rules must come first</text>
+
+          <text x="1120" y="364" fill="#2e5aa8" font-size="16" font-weight="600" text-anchor="middle">Runtime browser traffic</text>
+          <text x="1120" y="388" fill="#4f5d75" font-size="12" text-anchor="middle">same-origin requests only</text>
+          <text x="1120" y="408" fill="#4f5d75" font-size="12" text-anchor="middle">Authorization via Basic PAT</text>
+
+          <text x="460" y="576" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">Vercel-only edge policy</text>
+          <text x="460" y="600" fill="#4f5d75" font-size="12" text-anchor="middle">method allow-list + origin/referrer check</text>
+          <text x="460" y="620" fill="#4f5d75" font-size="12" text-anchor="middle">for /ado and /vsrm matcher paths</text>
+
+          <text x="800" y="576" fill="#2d3142" font-size="16" font-weight="600" text-anchor="middle">Dev server behavior</text>
+          <text x="800" y="600" fill="#4f5d75" font-size="12" text-anchor="middle">Vite proxy strips browser cookies</text>
+          <text x="800" y="620" fill="#4f5d75" font-size="12" text-anchor="middle">mirrors production proxy behavior</text>
+
+          <text x="1120" y="576" fill="#2e5aa8" font-size="16" font-weight="600" text-anchor="middle">Azure DevOps domains</text>
+          <text x="1120" y="600" fill="#4f5d75" font-size="12" text-anchor="middle">dev.azure.com + vsrm.dev.azure.com</text>
+          <text x="1120" y="620" fill="#4f5d75" font-size="12" text-anchor="middle">no direct browser CORS calls</text>
+
+          <line x1="40" y1="684" x2="1240" y2="684" stroke="rgba(45,49,66,0.1)" stroke-width="1"/>
+          <text x="40" y="696" fill="#4f5d75" font-size="0"> </text>
+        </svg>
+      </section>
+
+      <p class="footer">
+        Repository facts reflected here: no backend service in repo, no database layer, and no GitHub Actions workflow files found under
+        <code>.github/workflows/</code>. If those are added later, add CI/CD and backend runtime diagrams.
+      </p>
+    </div>
+  </body>
+</html>
